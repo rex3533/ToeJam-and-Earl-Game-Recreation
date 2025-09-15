@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SourceFileCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Profile>Reach</Profile>
+  <Platform>DesktopGL</Platform>
+  <Config />
+  <SourceFiles>
+    <File>C:/Users/maski/Downloads/MonoGame/MonoGame/Content/Elevator(1).png</File>
+    <File>C:/Users/maski/Downloads/MonoGame/MonoGame/Content/floor_path_tiles.png</File>
+    <File>C:/Users/maski/Downloads/MonoGame/MonoGame/Content/HUD_Display.png</File>
+    <File>C:/Users/maski/Downloads/MonoGame/MonoGame/Content/Items_Transparent.png</File>
+    <File>C:/Users/maski/Downloads/MonoGame/MonoGame/Content/LemonadeStand.png</File>
+    <File>C:/Users/maski/Downloads/MonoGame/MonoGame/Content/ToeJam_Transparent.png</File>
+    <File>C:/Users/maski/Downloads/MonoGame/MonoGame/Content/Tornado.png</File>
+  </SourceFiles>
+  <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+  </DestFiles>
+</SourceFileCollection>

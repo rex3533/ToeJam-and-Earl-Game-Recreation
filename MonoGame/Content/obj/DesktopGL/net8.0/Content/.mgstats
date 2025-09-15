@@ -1,0 +1,8 @@
+Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"C:/Users/maski/Downloads/MonoGame/MonoGame/Content/Elevator(1).png","C:/Users/maski/Downloads/MonoGame/MonoGame/Content/bin/DesktopGL/Content/Elevator(1).xnb","TextureProcessor","Texture2DContent",7378,680021,0.1171188
+"C:/Users/maski/Downloads/MonoGame/MonoGame/Content/floor_path_tiles.png","C:/Users/maski/Downloads/MonoGame/MonoGame/Content/bin/DesktopGL/Content/floor_path_tiles.xnb","TextureProcessor","Texture2DContent",58037,524373,0.1123666
+"C:/Users/maski/Downloads/MonoGame/MonoGame/Content/HUD_Display.png","C:/Users/maski/Downloads/MonoGame/MonoGame/Content/bin/DesktopGL/Content/HUD_Display.xnb","TextureProcessor","Texture2DContent",52512,1976149,0.0600254
+"C:/Users/maski/Downloads/MonoGame/MonoGame/Content/Items_Transparent.png","C:/Users/maski/Downloads/MonoGame/MonoGame/Content/bin/DesktopGL/Content/Items_Transparent.xnb","TextureProcessor","Texture2DContent",15405,399445,0.0138648
+"C:/Users/maski/Downloads/MonoGame/MonoGame/Content/LemonadeStand.png","C:/Users/maski/Downloads/MonoGame/MonoGame/Content/bin/DesktopGL/Content/LemonadeStand.xnb","TextureProcessor","Texture2DContent",6552,235093,0.0076184
+"C:/Users/maski/Downloads/MonoGame/MonoGame/Content/ToeJam_Transparent.png","C:/Users/maski/Downloads/MonoGame/MonoGame/Content/bin/DesktopGL/Content/ToeJam_Transparent.xnb","TextureProcessor","Texture2DContent",110869,2549421,0.0762673
+"C:/Users/maski/Downloads/MonoGame/MonoGame/Content/Tornado.png","C:/Users/maski/Downloads/MonoGame/MonoGame/Content/bin/DesktopGL/Content/Tornado.xnb","TextureProcessor","Texture2DContent",8317,159829,0.007318
