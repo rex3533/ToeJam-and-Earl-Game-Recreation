@@ -4,13 +4,13 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>c:/Users/maski/Downloads/MonoGame/MonoGame/Content/Elevator(1).png</File>
-    <File>c:/Users/maski/Downloads/MonoGame/MonoGame/Content/floor_path_tiles.png</File>
-    <File>c:/Users/maski/Downloads/MonoGame/MonoGame/Content/HUD_Display.png</File>
-    <File>c:/Users/maski/Downloads/MonoGame/MonoGame/Content/Items_Transparent.png</File>
-    <File>c:/Users/maski/Downloads/MonoGame/MonoGame/Content/LemonadeStand.png</File>
-    <File>c:/Users/maski/Downloads/MonoGame/MonoGame/Content/ToeJam_Transparent.png</File>
-    <File>c:/Users/maski/Downloads/MonoGame/MonoGame/Content/Tornado.png</File>
+    <File>c:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Elevator(1).png</File>
+    <File>c:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/floor_path_tiles.png</File>
+    <File>c:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/HUD_Display.png</File>
+    <File>c:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Items_Transparent.png</File>
+    <File>c:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/LemonadeStand.png</File>
+    <File>c:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/ToeJam_Transparent.png</File>
+    <File>c:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Tornado.png</File>
   </SourceFiles>
   <DestFiles>
     <File xsi:nil="true" />

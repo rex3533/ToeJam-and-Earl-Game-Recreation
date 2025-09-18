@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "gpjuXkVImnA=",
+  "dgSpecHash": "sHI+eDTTIra/fJQTCYThtTDB5X1eu0M1JWRlkBrUxznzRawQ6q/M697v1FassPgJkS/0Xl2x54vON9SQ0oVFng==",
   "success": true,
-  "projectFilePath": "C:\\Users\\maski\\Downloads\\MonoGame\\MonoGame\\MonoGame.csproj",
+  "projectFilePath": "C:\\Users\\maski\\Game Design\\ToeJam-and-Earl-Game-Recreation\\MonoGame\\MonoGame.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\maski\\.nuget\\packages\\monogame.content.builder.task\\3.8.4\\monogame.content.builder.task.3.8.4.nupkg.sha512",
     "C:\\Users\\maski\\.nuget\\packages\\monogame.framework.desktopgl\\3.8.4\\monogame.framework.desktopgl.3.8.4.nupkg.sha512",

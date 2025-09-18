@@ -74,9 +74,14 @@ public class GameManager
 
     public void Update()
     {
-        InputManager.Update();
-        _toejam.Update();
-        foreach (var o in _world) o.Update();
+    // Always process input so pause/unpause can be detected while paused.
+    InputManager.Update();
+
+    // If paused, skip game updates (player, NPCs, physics, etc.)
+    if (Globals.Paused) return;
+
+    _toejam.Update();
+    foreach (var o in _world) o.Update();
     }
 
     public void Draw()

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>C:/Users/maski/Downloads/MonoGame/MonoGame/Content/Elevator(1).png</SourceFile>
-  <SourceTime>2025-09-11T20:21:00-05:00</SourceTime>
-  <DestFile>C:/Users/maski/Downloads/MonoGame/MonoGame/Content/bin/DesktopGL/Content/Elevator(1).xnb</DestFile>
-  <DestTime>2025-09-11T20:35:42.3025219-05:00</DestTime>
+  <SourceFile>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Elevator(1).png</SourceFile>
+  <SourceTime>2025-09-16T12:39:53.2725923-05:00</SourceTime>
+  <DestFile>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/bin/DesktopGL/Content/Elevator(1).xnb</DestFile>
+  <DestTime>2025-09-18T13:12:04.6885782-05:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2025-06-02T05:31:02-05:00</ImporterTime>
   <Processor>TextureProcessor</Processor>
