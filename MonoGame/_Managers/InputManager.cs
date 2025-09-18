@@ -21,18 +21,19 @@ namespace MonoGame
             if (kb.IsKeyDown(Keys.W) || kb.IsKeyDown(Keys.Up))    dy--;
             if (kb.IsKeyDown(Keys.S) || kb.IsKeyDown(Keys.Down))  dy++;
 
-            // Allow diagonals (no clamping to cardinal here)
             _direction = new Vector2(dx, dy);
 
-            // Start button toggles pause: Enter or Space. Use edge-detect so holding
-            // the key won't repeatedly toggle.
+            // Pause toggle (edge-detected) — same pattern as your working version
             bool startPressed = kb.IsKeyDown(Keys.Enter) || kb.IsKeyDown(Keys.Space);
             bool wasStartPressed = _prevKb.IsKeyDown(Keys.Enter) || _prevKb.IsKeyDown(Keys.Space);
-
             if (startPressed && !wasStartPressed)
-            {
-                Globals.TogglePause();
-            }
+                Globals.TogglePause();   // same call you had before :contentReference[oaicite:3]{index=3}
+
+            // Map/Menu toggle (edge-detected on M) — shows on-screen toast
+            bool mNow  = kb.IsKeyDown(Keys.M);
+            bool mPrev = _prevKb.IsKeyDown(Keys.M);
+            if (mNow && !mPrev)
+                Globals.ToggleMenu();
 
             _prevKb = kb;
         }

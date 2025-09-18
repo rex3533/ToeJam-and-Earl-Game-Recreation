@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFile>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/UIFont.spritefont</SourceFile>
+  <SourceTime>2025-09-18T13:40:24.695855-05:00</SourceTime>
+  <DestFile>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/bin/DesktopGL/Content/UIFont.xnb</DestFile>
+  <DestTime>2025-09-18T13:42:02.3516032-05:00</DestTime>
+  <Importer>FontDescriptionImporter</Importer>
+  <ImporterTime>2025-06-02T05:31:02-05:00</ImporterTime>
+  <Processor>FontDescriptionProcessor</Processor>
+  <ProcessorTime>2025-06-02T05:31:02-05:00</ProcessorTime>
+  <Parameters>
+    <Key>PremultiplyAlpha</Key>
+    <Value>True</Value>
+  </Parameters>
+  <Parameters>
+    <Key>TextureFormat</Key>
+    <Value>Compressed</Value>
+  </Parameters>
+  <Dependencies />
+  <BuildAsset />
+  <BuildOutput />
+</PipelineBuildEvent>

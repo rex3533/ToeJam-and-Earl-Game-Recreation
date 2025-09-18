@@ -11,8 +11,10 @@
     <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/LemonadeStand.png</File>
     <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/ToeJam_Transparent.png</File>
     <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Tornado.png</File>
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/UIFont.spritefont</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

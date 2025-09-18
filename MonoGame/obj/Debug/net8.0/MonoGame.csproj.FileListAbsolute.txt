@@ -115,3 +115,4 @@ C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\ne
 C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\MonoGame.pdb
 C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\MonoGame.genruntimeconfig.cache
 C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\ref\MonoGame.dll
+C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\UIFont.xnb
