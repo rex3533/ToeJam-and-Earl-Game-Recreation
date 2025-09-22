@@ -30,7 +30,11 @@ public static class Globals
         System.Diagnostics.Debug.WriteLine(MenuToastText);
         System.Console.WriteLine(MenuToastText);
     }
-
+    public static void ShowToast(string text, float seconds = 1.2f)
+    {
+        MenuToastText = text ?? "";
+        MenuToastTimer = seconds;
+    }
     public static void Update(GameTime gt)
     {
         TotalSeconds = (float)gt.ElapsedGameTime.TotalSeconds;

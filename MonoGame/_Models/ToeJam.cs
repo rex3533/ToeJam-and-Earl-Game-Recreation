@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace MonoGame
 {
@@ -7,13 +8,28 @@ namespace MonoGame
     {
         private Vector2 _position = new Vector2(100, 100);
         private readonly float _speed = 200f;
-        private readonly AnimationManager _anims = new AnimationManager();
-        private readonly Microsoft.Xna.Framework.Graphics.Texture2D _tex;
 
-        public ToeJam(int _, Microsoft.Xna.Framework.Graphics.Texture2D toeJamTexture)
+        private readonly Texture2D _tex;
+
+        // Two animation sets: walk (existing) + sneak (new)
+        private readonly AnimationManager _walkAnims = new AnimationManager();
+        private readonly AnimationManager _sneakAnims = new AnimationManager();
+        private bool _hasSneakAnims = false; // becomes true once we fill rectangles
+
+        // Sneak toggle (Z): when true, use sneak move anims; idle stays regular
+        private bool _sneaking;
+        private const float SneakFactor = 0.45f;
+
+        public ToeJam(int _, Texture2D toeJamTexture)
         {
             _tex = toeJamTexture;
 
+            BuildWalkAnims();
+            BuildSneakAnims(); // uses your provided 18x28 coords
+        }
+
+        private void BuildWalkAnims()
+        {
             // --- IDLE (3 frames) ---
             var idle = new Animations(
                 _tex,
@@ -25,7 +41,7 @@ namespace MonoGame
                 },
                 frameTime: 0.12f
             );
-            _anims.SetIdle(idle);
+            _walkAnims.SetIdle(idle);
 
             // --- MOVE DOWN (6 frames) ---
             var moveDown = new Animations(
@@ -41,7 +57,7 @@ namespace MonoGame
                 },
                 frameTime: 0.10f
             );
-            _anims.AddMoveAnimation(new Vector2(0, 1), moveDown);
+            _walkAnims.AddMoveAnimation(new Vector2(0, 1), moveDown);
 
             // --- MOVE RIGHT (6 frames) ---
             var moveRight = new Animations(
@@ -57,7 +73,7 @@ namespace MonoGame
                 },
                 frameTime: 0.10f
             );
-            _anims.AddMoveAnimation(new Vector2(1, 0), moveRight);
+            _walkAnims.AddMoveAnimation(new Vector2(1, 0), moveRight);
 
             // --- MOVE LEFT (6 frames) ---
             var moveLeft = new Animations(
@@ -73,9 +89,9 @@ namespace MonoGame
                 },
                 frameTime: 0.10f
             );
-            _anims.AddMoveAnimation(new Vector2(-1, 0), moveLeft);
+            _walkAnims.AddMoveAnimation(new Vector2(-1, 0), moveLeft);
 
-            // --- MOVE UP (6 frames)  ---
+            // --- MOVE UP (6 frames) ---
             var moveUp = new Animations(
                 _tex,
                 new List<Rectangle>
@@ -89,25 +105,82 @@ namespace MonoGame
                 },
                 frameTime: 0.10f
             );
-            _anims.AddMoveAnimation(new Vector2(0, -1), moveUp);
+            _walkAnims.AddMoveAnimation(new Vector2(0, -1), moveUp);
+        }
+
+        private void BuildSneakAnims()
+        {
+            // all sneak frames are 18x28 (from your notes)
+            const int W = 18, H = 28;
+
+            // ↓ Down (3)
+            var down = new List<Rectangle> {
+                new Rectangle(26, 204, W, H),
+                new Rectangle(54, 204, W, H),
+                new Rectangle(85, 204, W, H),
+            };
+
+            // ↑ Up (3)
+            var up = new List<Rectangle> {
+                new Rectangle(23, 248, W, H),
+                new Rectangle(52, 246, W, H),
+                new Rectangle(81, 247, W, H),
+            };
+
+            // ← Left (3)
+            var left = new List<Rectangle> {
+                new Rectangle(133, 202, W, H),
+                new Rectangle(158, 204, W, H),
+                new Rectangle(184, 205, W, H),
+            };
+
+            // → Right (3)
+            var right = new List<Rectangle> {
+                new Rectangle(130, 247, W, H),
+                new Rectangle(157, 246, W, H),
+                new Rectangle(183, 244, W, H),
+            };
+
+            // IMPORTANT: Do NOT set a sneak idle. We want regular idle when not moving.
+            _sneakAnims.AddMoveAnimation(new Vector2(0,  1), new Animations(_tex, down,  0.10f)); // down
+            _sneakAnims.AddMoveAnimation(new Vector2(0, -1), new Animations(_tex, up,    0.10f)); // up
+            _sneakAnims.AddMoveAnimation(new Vector2(-1, 0), new Animations(_tex, left,  0.10f)); // left
+            _sneakAnims.AddMoveAnimation(new Vector2(1,  0), new Animations(_tex, right, 0.10f)); // right
+
+            _hasSneakAnims = true;
         }
 
         public void Update()
         {
             var dir = InputManager.Direction;
 
-            // Normalize so diagonals aren't faster
+            // Z (our “A button”) toggles sneaking on edge press
+            if (InputManager.APressed)
+                _sneaking = !_sneaking;
+
+            // Move (delta-time); when sneaking, slower
             if (dir != Vector2.Zero)
             {
-                var move = dir;
-                move.Normalize();
-                _position += move * _speed * Globals.TotalSeconds;
+                var move = dir; move.Normalize();
+                float speed = _speed * (_sneaking ? SneakFactor : 1f);
+                _position += move * speed * Globals.TotalSeconds;
             }
 
-            // Animations decide which cardinal to show for diagonals
-            _anims.Update(dir);
+            // Choose animation set:
+            // - If sneaking AND moving -> use sneak set
+            // - Else -> use regular walk set (includes idle when dir == zero)
+            bool useSneak = _sneaking && _hasSneakAnims && dir != Vector2.Zero;
+            var active = useSneak ? _sneakAnims : _walkAnims;
+
+            active.Update(dir);
         }
 
-        public void Draw() => _anims.Draw(_position);
+        public void Draw()
+        {
+            var dir = InputManager.Direction;
+            bool useSneak = _sneaking && _hasSneakAnims && dir != Vector2.Zero;
+            var active = useSneak ? _sneakAnims : _walkAnims;
+            active.Draw(_position);
+        }
     }
 }
