@@ -17,10 +17,17 @@ namespace MonoGame
         private bool _invOpen = false;
         private int _invIndex = 0;
         private KeyboardState _prevKb = Keyboard.GetState();
+
+        // You can rename/expand this freely
         private readonly List<(string name, int count)> _inv = new()
         {
-            ("Hi-Tops", 2), ("Tomatoes", 5), ("Rocket Skates", 1)
+            ("Decoy", 3), ("Hi-Tops", 2), ("Tomatoes", 5)
         };
+
+        // Equipped + active timed power
+        private string _equipped = null;     // present name equipped from inventory
+        private string _activePower = null;  // e.g., "Hi-Tops"
+        private float _powerTimer = 0f;      // seconds remaining
 
         public void Init(GraphicsDevice gd)
         {
@@ -43,7 +50,7 @@ namespace MonoGame
             var texItems    = Globals.Content.Load<Texture2D>("Items_Transparent");
             var texFloor    = Globals.Content.Load<Texture2D>("floor_path_tiles");
 
-            // World items (unchanged)
+            // World items (unchanged examples)
             _world.Add(new GameObject(texLemon, new Vector2(300, 120), GameRole.NPC,
                                       new Rectangle(8, 8, 67, 60)));
             _world.Add(new GameObject(texTornado, new Vector2(360, 120), GameRole.Enemy,
@@ -100,20 +107,13 @@ namespace MonoGame
                 if (rightNow && !rightPrev && _inv.Count > 0)
                     _invIndex = (_invIndex + 1) % _inv.Count;
 
-                // Use/confirm with Z
+                // EQUIP with Z (does NOT consume)
                 if (InputManager.APressed && _inv.Count > 0)
                 {
-                    var (n, c) = _inv[_invIndex];
-                    if (c > 0)
-                    {
-                        _inv[_invIndex] = (n, c - 1);
-                        Globals.ShowToast($"Used {n}", 1.2f);
-                        if (c - 1 == 0)
-                        {
-                            _inv.RemoveAt(_invIndex);
-                            if (_invIndex >= _inv.Count) _invIndex = System.Math.Max(0, _inv.Count - 1);
-                        }
-                    }
+                    _equipped = _inv[_invIndex].name;
+                    Globals.ShowToast($"Equipped {_equipped}", 1.2f);
+                    // Optional auto-close:
+                    // _invOpen = false;
                 }
 
                 _prevKb = kb;
@@ -125,9 +125,101 @@ namespace MonoGame
             // If paused, freeze sim (draw still runs)
             if (Globals.Paused) return;
 
+            // === Gameplay: Z pressed ===
+            if (InputManager.APressed)
+            {
+                if (!string.IsNullOrEmpty(_equipped))
+                {
+                    UseEquipped(); // consume/effect
+                }
+                else
+                {
+                    // No item equipped: Z toggles sneak
+                    _toejam.ToggleSneak();
+                }
+            }
+
+            // Tick active power timers
+            if (_activePower != null)
+            {
+                _powerTimer -= Globals.TotalSeconds;
+                if (_powerTimer <= 0f)
+                    EndActivePower();
+            }
+
             // Normal gameplay
             _toejam.Update();
             foreach (var o in _world) o.Update();
+
+            // Remove expired objects (e.g., decoy powerups)
+            for (int i = _world.Count - 1; i >= 0; i--)
+                if (!_world[i].Alive) _world.RemoveAt(i);
+        }
+
+        private void UseEquipped()
+        {
+            // Locate equipped item in inventory to ensure we have charges
+            int idx = _inv.FindIndex(slot => slot.name == _equipped);
+            if (idx < 0 || _inv[idx].count <= 0)
+            {
+                Globals.ShowToast($"{_equipped} not available", 1.2f);
+                _equipped = null;
+                return;
+            }
+
+            switch (_equipped)
+            {
+                case "Decoy":
+                {
+                    // Spawn animated decoy at player position (your 3 frames @ 27x42)
+                    var decoy = Powerup.CreateDecoy(_toejam.Texture, _toejam.Position, lifeSeconds: 6f);
+                    _world.Add(decoy);
+                    ConsumeOne(idx);
+                    Globals.ShowToast("Decoy deployed!", 1.2f);
+                    _equipped = null; // one-shot
+                    break;
+                }
+
+                case "Hi-Tops":
+                {
+                    // Example of a timed power (10s)
+                    StartPower("Hi-Tops", seconds: 10f, speedMult: 1.75f);
+                    ConsumeOne(idx);
+                    _equipped = null;
+                    break;
+                }
+
+                default:
+                {
+                    Globals.ShowToast($"Using {_equipped} not implemented yet", 1.2f);
+                    _equipped = null; // or keep equipped until implemented
+                    break;
+                }
+            }
+        }
+
+        private void ConsumeOne(int idx)
+        {
+            var (n, c) = _inv[idx];
+            c--;
+            if (c <= 0) _inv.RemoveAt(idx);
+            else _inv[idx] = (n, c);
+        }
+
+        private void StartPower(string name, float seconds, float speedMult)
+        {
+            _activePower = name;
+            _powerTimer = seconds;
+            _toejam.SpeedMultiplier = speedMult;
+            Globals.ShowToast($"{name} ON ({(int)seconds}s)", 1.2f);
+        }
+
+        private void EndActivePower()
+        {
+            _toejam.SpeedMultiplier = 1f;
+            Globals.ShowToast($"{_activePower} wore off", 1.2f);
+            _activePower = null;
+            _powerTimer = 0f;
         }
 
         public void Draw()
@@ -167,7 +259,7 @@ namespace MonoGame
             if (_invOpen && _font != null)
             {
                 var vp  = Globals.SpriteBatch.GraphicsDevice.Viewport;
-                var box = new Rectangle(vp.Width/2 - 260, vp.Height - 150, 520, 110);
+                var box = new Rectangle(vp.Width/2 - 300, vp.Height - 170, 600, 130);
                 Globals.SpriteBatch.Draw(_white, box, new Color(0,0,0,190));
 
                 var y = box.Y + 12;
@@ -189,8 +281,26 @@ namespace MonoGame
                     }
                 }
 
-                Globals.SpriteBatch.DrawString(_font, "Z: Use   X: Close   Left/Right: Select",
-                new Vector2(box.X + 14, box.Bottom - 24), Color.White);
+                Globals.SpriteBatch.DrawString(_font, "Z: Equip   X: Close   Left/Right: Select",
+                    new Vector2(box.X + 14, box.Bottom - 24), Color.White);
+            }
+
+            // Equipped + Power HUD (top-left)
+            if (_font != null)
+            {
+                var hudText = "";
+                if (!string.IsNullOrEmpty(_equipped)) hudText += $"Equipped: {_equipped}\n";
+                if (_activePower != null) hudText += $"{_activePower}: {System.Math.Ceiling(_powerTimer)}s";
+
+                if (!string.IsNullOrEmpty(hudText))
+                {
+                    var pos = new Vector2(12, 50);
+                    var size = _font.MeasureString(hudText);
+                    var rect = new Rectangle((int)(pos.X - 8), (int)(pos.Y - 6),
+                                             (int)(size.X + 16), (int)(size.Y + 12));
+                    Globals.SpriteBatch.Draw(_white, rect, new Color(0,0,0,140));
+                    Globals.SpriteBatch.DrawString(_font, hudText, pos, Color.White);
+                }
             }
 
             // PAUSED label (center)

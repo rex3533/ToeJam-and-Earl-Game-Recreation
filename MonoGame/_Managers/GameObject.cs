@@ -14,6 +14,9 @@ public class GameObject
     public Point? Size;            // if set, draws into this destination size
     public GameRole Role;
 
+    // NEW: allow timed objects to remove themselves
+    public bool Alive = true;
+
     public GameObject(Texture2D sprite, Vector2 position, GameRole role, Rectangle? source = null)
     {
         Sprite = sprite;

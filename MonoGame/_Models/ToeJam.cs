@@ -16,9 +16,15 @@ namespace MonoGame
         private readonly AnimationManager _sneakAnims = new AnimationManager();
         private bool _hasSneakAnims = false; // becomes true once we fill rectangles
 
-        // Sneak toggle (Z): when true, use sneak move anims; idle stays regular
         private bool _sneaking;
         private const float SneakFactor = 0.45f;
+
+        // NEW: for timed boosts (Hi-Tops, etc.)
+        public float SpeedMultiplier { get; set; } = 1f;
+
+        // Expose texture + idle rect so GameManager can build a decoy sprite
+        public Texture2D Texture => _tex;
+        public Rectangle IdleRect => new Rectangle(15, 14, 22, 24);
 
         public ToeJam(int _, Texture2D toeJamTexture)
         {
@@ -107,6 +113,8 @@ namespace MonoGame
             );
             _walkAnims.AddMoveAnimation(new Vector2(0, -1), moveUp);
         }
+        // can drop powerups at the player’s location
+        public Vector2 Position => _position;
 
         private void BuildSneakAnims()
         {
@@ -141,7 +149,7 @@ namespace MonoGame
                 new Rectangle(183, 244, W, H),
             };
 
-            // IMPORTANT: Do NOT set a sneak idle. We want regular idle when not moving.
+            // We only define moving sneak loops; idle stays regular idle.
             _sneakAnims.AddMoveAnimation(new Vector2(0,  1), new Animations(_tex, down,  0.10f)); // down
             _sneakAnims.AddMoveAnimation(new Vector2(0, -1), new Animations(_tex, up,    0.10f)); // up
             _sneakAnims.AddMoveAnimation(new Vector2(-1, 0), new Animations(_tex, left,  0.10f)); // left
@@ -150,19 +158,18 @@ namespace MonoGame
             _hasSneakAnims = true;
         }
 
+        // Called by GameManager when Z should toggle sneaking (only if nothing equipped)
+        public void ToggleSneak() => _sneaking = !_sneaking;
+
         public void Update()
         {
             var dir = InputManager.Direction;
 
-            // Z (our “A button”) toggles sneaking on edge press
-            if (InputManager.APressed)
-                _sneaking = !_sneaking;
-
-            // Move (delta-time); when sneaking, slower
+            // Move (delta-time); when sneaking, slower; include any SpeedMultiplier
             if (dir != Vector2.Zero)
             {
                 var move = dir; move.Normalize();
-                float speed = _speed * (_sneaking ? SneakFactor : 1f);
+                float speed = _speed * SpeedMultiplier * (_sneaking ? SneakFactor : 1f);
                 _position += move * speed * Globals.TotalSeconds;
             }
 
