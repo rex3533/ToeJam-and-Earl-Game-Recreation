@@ -57,7 +57,17 @@ namespace MonoGame
             }
             else
             {
-                Globals.SpriteBatch.Draw(Sprite, new Vector2(px, py), src, Tint);
+                Globals.SpriteBatch.Draw(
+                Sprite,
+                new Vector2(px, py),
+                src,
+                Tint,
+                0f,
+                Vector2.Zero,
+                Scale,                 // <— now uses GameObject.Scale
+                SpriteEffects.None,
+                0f
+                );
             }
         }
 

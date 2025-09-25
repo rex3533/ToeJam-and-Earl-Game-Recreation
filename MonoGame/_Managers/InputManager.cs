@@ -11,7 +11,7 @@ namespace MonoGame
         public static Vector2 Direction => _direction;
         public static bool Moving => _direction != Vector2.Zero;
 
-        // === New: A/B buttons ===
+        // === A/B buttons ===
         public static bool APressed { get; private set; }   // edge (just pressed this frame)
         public static bool AHeld    { get; private set; }   // level (held down)
         public static bool BPressed { get; private set; }   // edge
@@ -34,13 +34,13 @@ namespace MonoGame
             // Pause toggle (edge)
             bool startNow  = kb.IsKeyDown(Keys.Enter) || kb.IsKeyDown(Keys.Space);
             bool startPrev = _prevKb.IsKeyDown(Keys.Enter) || _prevKb.IsKeyDown(Keys.Space);
-            if (startNow && !startPrev) Globals.TogglePause();   // matches your baseline
+            if (startNow && !startPrev) Globals.TogglePause();   // matches baseline
             // Map/Menu toast (edge on M)
             bool mNow  = kb.IsKeyDown(Keys.M);
             bool mPrev = _prevKb.IsKeyDown(Keys.M);
             if (mNow && !mPrev) Globals.ToggleMenu();
 
-            // === A/B handling ===
+            // === A/B (Z and X) handling ===
             bool aNow  = kb.IsKeyDown(KeyA);
             bool aPrev = _prevKb.IsKeyDown(KeyA);
             APressed = aNow && !aPrev;

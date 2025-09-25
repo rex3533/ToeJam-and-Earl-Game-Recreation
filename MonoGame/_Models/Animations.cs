@@ -71,22 +71,23 @@ public class Animations
         }
     }
 
-    public void Draw(Vector2 pos)
+    // Animations.cs
+    public void Draw(Vector2 pos, float scale = 1f)
     {
-        // snap to whole pixels to avoid shimmer/bleed
-        pos.X = (float)System.Math.Floor(pos.X);
-        pos.Y = (float)System.Math.Floor(pos.Y);
+    pos.X = (float)System.Math.Floor(pos.X);
+    pos.Y = (float)System.Math.Floor(pos.Y);
 
-        Globals.SpriteBatch.Draw(
-            _texture,
-            pos,
-            _framesList[_frame],
-            Microsoft.Xna.Framework.Color.White,
-            0f,
-            Vector2.Zero,
-            1f,
-            SpriteEffects.None,
-            0f
-        );
+    Globals.SpriteBatch.Draw(
+        _texture,
+        pos,
+        _framesList[_frame],
+        Microsoft.Xna.Framework.Color.White,
+        0f,
+        Vector2.Zero,
+        scale,                  // <— was 1f
+        SpriteEffects.None,
+        0f
+     );
     }
+
 }

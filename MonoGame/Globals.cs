@@ -10,12 +10,12 @@ public static class Globals
     public static ContentManager Content { get; set; }
     public static SpriteBatch SpriteBatch { get; set; }
 
-    // ---- Pause (unchanged from your working baseline) ----
+    // ---- Pause (unchanged from working baseline) ----
     public static bool Paused { get; private set; }
     public static void TogglePause() => Paused = !Paused;
     public static void SetPaused(bool paused) => Paused = paused;
 
-    // ---- Menu toast (new) ----
+    // ---- Menu toast  ----
     public static bool MenuOpen { get; private set; }
     public static string MenuToastText { get; private set; } = "";
     public static float MenuToastTimer { get; private set; } = 0f; // seconds

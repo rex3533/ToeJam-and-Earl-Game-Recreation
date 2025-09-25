@@ -18,7 +18,7 @@ namespace MonoGame
         private int _invIndex = 0;
         private KeyboardState _prevKb = Keyboard.GetState();
 
-        // You can rename/expand this freely
+        // Can rename/expand this freely
         private readonly List<(string name, int count)> _inv = new()
         {
             ("Decoy", 3), ("Hi-Tops", 2), ("Tomatoes", 5)
@@ -173,6 +173,7 @@ namespace MonoGame
                 {
                     // Spawn animated decoy at player position (your 3 frames @ 27x42)
                     var decoy = Powerup.CreateDecoy(_toejam.Texture, _toejam.Position, lifeSeconds: 6f);
+                    decoy.Scale = _toejam.Scale; // match player size
                     _world.Add(decoy);
                     ConsumeOne(idx);
                     Globals.ShowToast("Decoy deployed!", 1.2f);

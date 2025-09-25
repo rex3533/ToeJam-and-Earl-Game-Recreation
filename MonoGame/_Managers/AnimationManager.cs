@@ -90,6 +90,9 @@ namespace MonoGame
             _current?.Update();
         }
 
-        public void Draw(Vector2 position) => _current?.Draw(position);
+    //scale parameter added for drawing
+     public void Draw(Vector2 position, float scale = 1f)
+     => _current?.Draw(position, scale);
+
     }
 }

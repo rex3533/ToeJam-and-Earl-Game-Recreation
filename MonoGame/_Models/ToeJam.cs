@@ -16,10 +16,13 @@ namespace MonoGame
         private readonly AnimationManager _sneakAnims = new AnimationManager();
         private bool _hasSneakAnims = false; // becomes true once we fill rectangles
 
+        // Drawing scale (1 for original size)
+        public float Scale { get; set; } = 1.8f;
+        // Sneaking state + speed factor
         private bool _sneaking;
         private const float SneakFactor = 0.45f;
 
-        // NEW: for timed boosts (Hi-Tops, etc.)
+        // For timed boosts (Hi-Tops, etc.)
         public float SpeedMultiplier { get; set; } = 1f;
 
         // Expose texture + idle rect so GameManager can build a decoy sprite
@@ -187,7 +190,7 @@ namespace MonoGame
             var dir = InputManager.Direction;
             bool useSneak = _sneaking && _hasSneakAnims && dir != Vector2.Zero;
             var active = useSneak ? _sneakAnims : _walkAnims;
-            active.Draw(_position);
+            active.Draw(_position, Scale);
         }
     }
 }
