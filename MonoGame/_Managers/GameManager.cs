@@ -1,5 +1,7 @@
 using System.Collections.Generic;
-
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input; // Keys, KeyboardState
 
 namespace MonoGame
 {
@@ -30,10 +32,17 @@ namespace MonoGame
 
         // --- Part 2: Facing check (dot product) ---
         private Vector2 _playerFacing = new(1f, 0f);  // last non-zero input direction
-        private bool _facingEnemy = false;            // result for the nearest enemy
-        private float _facingDot = 0f;                // for debugging/threshold tuning
+        private bool _facingEnemy = false;            // whether nearest enemy is in front
+        private float _facingDot = 0f;                // dot product value
         private bool _prevFacingEnemy;                // last printed "facing" state
         private float _prevDot;                       // last printed dot value
+
+        // --- Part 2: Cross product (left/right of facing) ---
+        // Sign convention (2D cross z-component): + = Left, - = Right, 0 = On the line
+        private int _facingSide = 0;                  // -1 = Right, 0 = On, +1 = Left
+        private float _crossZ = 0f;                   // z-component value of facing x toEnemy
+        private int _prevFacingSide;                  // last printed side
+        private float _prevCross;                     // last printed cross value
 
         // Debug HUD toggle (F3)
         private bool _debugHUD = false;
@@ -96,15 +105,15 @@ namespace MonoGame
                                     int cols, int rows, int tileSize, Color tint)
         {
             for (int y = 0; y < rows; y++)
-                for (int x = 0; x < cols; x++)
+            for (int x = 0; x < cols; x++)
+            {
+                _world.Add(new GameObject(texture, origin + new Vector2(x * tileSize, y * tileSize),
+                                          GameRole.Tile, source)
                 {
-                    _world.Add(new GameObject(texture, origin + new Vector2(x * tileSize, y * tileSize),
-                                              GameRole.Tile, source)
-                    {
-                        Size = new Point(tileSize, tileSize),
-                        Tint = tint
-                    });
-                }
+                    Size = new Point(tileSize, tileSize),
+                    Tint = tint
+                });
+            }
         }
 
         public void Update()
@@ -116,7 +125,7 @@ namespace MonoGame
             if (InputManager.Moving)
                 _playerFacing = Vector2.Normalize(InputManager.Direction);
 
-            // Find nearest enemy (for the facing check)
+            // Find nearest enemy (for the facing & side checks)
             GameObject nearestEnemy = null;
             float bestD2 = float.MaxValue;
             foreach (var o in _world)
@@ -126,30 +135,45 @@ namespace MonoGame
                 if (d2 < bestD2) { bestD2 = d2; nearestEnemy = o; }
             }
 
-            // Compute facing result (only if we found an enemy)
+            // Compute results (only if we found an enemy)
             if (nearestEnemy != null)
             {
+                // ---- DOT: is the enemy in front? (angle < 90° if dot > 0) ----
                 _facingEnemy = IsFacingTarget(
                     _toejam.Position,
                     _playerFacing,
                     nearestEnemy.Position,
                     out _facingDot,
-                    0f // minDot=0 -> anything in front (angle < 90°). Increase to narrow the cone.
+                    0f // minDot=0 -> anything in front; increase to narrow the cone
+                );
+
+                // ---- CROSS: is the enemy left or right of the facing direction? ----
+                _facingSide = SideOfFacing(
+                    _toejam.Position,
+                    _playerFacing,
+                    nearestEnemy.Position,
+                    out _crossZ
                 );
 
                 // Log only when it meaningfully changes (less spam)
-                if (_facingEnemy != _prevFacingEnemy || System.Math.Abs(_facingDot - _prevDot) > 0.05f)
+                bool changedFacing = (_facingEnemy != _prevFacingEnemy) || (System.Math.Abs(_facingDot - _prevDot) > 0.05f);
+                bool changedSide   = (_facingSide != _prevFacingSide)   || (System.Math.Abs(_crossZ   - _prevCross) > 0.05f);
+                if (changedFacing || changedSide)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Facing={_facingEnemy} dot={_facingDot:0.00}");
-                    System.Diagnostics.Trace.WriteLine($"Facing={_facingEnemy} dot={_facingDot:0.00}");
+                    System.Diagnostics.Debug.WriteLine($"Facing={_facingEnemy} dot={_facingDot:0.00} side={SideLabel(_facingSide)} crossZ={_crossZ:0.00}");
+                    System.Diagnostics.Trace.WriteLine($"Facing={_facingEnemy} dot={_facingDot:0.00} side={SideLabel(_facingSide)} crossZ={_crossZ:0.00}");
                     _prevFacingEnemy = _facingEnemy;
                     _prevDot = _facingDot;
+                    _prevFacingSide = _facingSide;
+                    _prevCross = _crossZ;
                 }
             }
             else
             {
                 _facingEnemy = false;
                 _facingDot = 0f;
+                _facingSide = 0;
+                _crossZ = 0f;
             }
 
             // Toggle inventory with X
@@ -158,17 +182,17 @@ namespace MonoGame
             var kb = Keyboard.GetState();
 
             // Debug HUD toggle (F3)
-            bool f3Now = kb.IsKeyDown(Keys.F3);
+            bool f3Now  = kb.IsKeyDown(Keys.F3);
             bool f3Prev = _prevKb.IsKeyDown(Keys.F3);
             if (f3Now && !f3Prev) _debugHUD = !_debugHUD;
 
             if (_invOpen)
             {
                 // Move selection (edge on left/right)
-                bool leftNow = kb.IsKeyDown(Keys.Left);
+                bool leftNow  = kb.IsKeyDown(Keys.Left);
                 bool leftPrev = _prevKb.IsKeyDown(Keys.Left);
                 bool rightNow = kb.IsKeyDown(Keys.Right);
-                bool rightPrev = _prevKb.IsKeyDown(Keys.Right);
+                bool rightPrev= _prevKb.IsKeyDown(Keys.Right);
 
                 if (leftNow && !leftPrev && _inv.Count > 0)
                     _invIndex = (_invIndex - 1 + _inv.Count) % _inv.Count;
@@ -241,13 +265,43 @@ namespace MonoGame
             Vector2 toTarget = target - pos;
             if (toTarget.LengthSquared() < 1e-6f) { dotOut = 1f; return true; }
 
-            facing = Vector2.Normalize(facing);
+            facing   = Vector2.Normalize(facing);
             toTarget = Vector2.Normalize(toTarget);
 
             float dot = Vector2.Dot(facing, toTarget);
             dotOut = dot;
             return dot > minDot;
         }
+
+        // 2D side test using cross product (z-component of facing × toTarget).
+        // Returns +1 (Left), -1 (Right), or 0 (colinear). crossOut holds the z value.
+        private static int SideOfFacing(
+            Vector2 pos,
+            Vector2 facing,
+            Vector2 target,
+            out float crossOut,
+            float eps = 1e-6f)
+        {
+            crossOut = 0f;
+
+            if (facing.LengthSquared() < 1e-6f) return 0;
+
+            Vector2 toTarget = target - pos;
+            if (toTarget.LengthSquared() < eps) return 0;
+
+            // Normalizing not required for sign, but keeps cross magnitudes comparable
+            facing   = Vector2.Normalize(facing);
+            toTarget = Vector2.Normalize(toTarget);
+
+            float z = facing.X * toTarget.Y - facing.Y * toTarget.X;
+            crossOut = z;
+
+            if (z >  eps) return +1;  // Left (target is counter-clockwise from facing)
+            if (z < -eps) return -1;  // Right
+            return 0;                  // On the line
+        }
+
+        private static string SideLabel(int s) => s > 0 ? "Right" : (s < 0 ? "Left" : "On");
 
         private void UseEquipped()
         {
@@ -263,32 +317,32 @@ namespace MonoGame
             switch (_equipped)
             {
                 case "Decoy":
-                    {
-                        // Spawn animated decoy at player position (your 3 frames @ 27x42)
-                        var decoy = Powerup.CreateDecoy(_toejam.Texture, _toejam.Position, lifeSeconds: 6f);
-                        decoy.Scale = _toejam.Scale; // match player size
-                        _world.Add(decoy);
-                        ConsumeOne(idx);
-                        Globals.ShowToast("Decoy deployed!", 1.2f);
-                        _equipped = null; // one-shot
-                        break;
-                    }
+                {
+                    // Spawn animated decoy at player position (your 3 frames @ 27x42)
+                    var decoy = Powerup.CreateDecoy(_toejam.Texture, _toejam.Position, lifeSeconds: 6f);
+                    decoy.Scale = _toejam.Scale; // match player size
+                    _world.Add(decoy);
+                    ConsumeOne(idx);
+                    Globals.ShowToast("Decoy deployed!", 1.2f);
+                    _equipped = null; // one-shot
+                    break;
+                }
 
                 case "Hi-Tops":
-                    {
-                        // Example of a timed power (10s)
-                        StartPower("Hi-Tops", seconds: 10f, speedMult: 1.75f);
-                        ConsumeOne(idx);
-                        _equipped = null;
-                        break;
-                    }
+                {
+                    // Example of a timed power (10s)
+                    StartPower("Hi-Tops", seconds: 10f, speedMult: 1.75f);
+                    ConsumeOne(idx);
+                    _equipped = null;
+                    break;
+                }
 
                 default:
-                    {
-                        Globals.ShowToast($"Using {_equipped} not implemented yet", 1.2f);
-                        _equipped = null; // or keep equipped until implemented
-                        break;
-                    }
+                {
+                    Globals.ShowToast($"Using {_equipped} not implemented yet", 1.2f);
+                    _equipped = null; // or keep equipped until implemented
+                    break;
+                }
             }
         }
 
@@ -333,10 +387,10 @@ namespace MonoGame
             // Menu toast (top-center)
             if (_font != null && Globals.MenuToastTimer > 0f && !string.IsNullOrEmpty(Globals.MenuToastText))
             {
-                var vp = Globals.SpriteBatch.GraphicsDevice.Viewport;
+                var vp   = Globals.SpriteBatch.GraphicsDevice.Viewport;
                 var text = Globals.MenuToastText;
                 var size = _font.MeasureString(text);
-                var pos = new Vector2((vp.Width - size.X) / 2f, 10f);
+                var pos  = new Vector2((vp.Width - size.X) / 2f, 10f);
 
                 var pad = new Vector2(8, 4);
                 var rect = new Rectangle(
@@ -352,9 +406,9 @@ namespace MonoGame
             // Inventory list overlay (bottom-center)
             if (_invOpen && _font != null)
             {
-                var vp = Globals.SpriteBatch.GraphicsDevice.Viewport;
-                var box = new Rectangle(vp.Width / 2 - 300, vp.Height - 170, 600, 130);
-                Globals.SpriteBatch.Draw(_white, box, new Color(0, 0, 0, 190));
+                var vp  = Globals.SpriteBatch.GraphicsDevice.Viewport;
+                var box = new Rectangle(vp.Width/2 - 300, vp.Height - 170, 600, 130);
+                Globals.SpriteBatch.Draw(_white, box, new Color(0,0,0,190));
 
                 var y = box.Y + 12;
                 var x = box.X + 14;
@@ -392,7 +446,7 @@ namespace MonoGame
                     var size = _font.MeasureString(hudText);
                     var rect = new Rectangle((int)(pos.X - 8), (int)(pos.Y - 6),
                                              (int)(size.X + 16), (int)(size.Y + 12));
-                    Globals.SpriteBatch.Draw(_white, rect, new Color(0, 0, 0, 140));
+                    Globals.SpriteBatch.Draw(_white, rect, new Color(0,0,0,140));
                     Globals.SpriteBatch.DrawString(_font, hudText, pos, Color.White);
                 }
             }
@@ -401,9 +455,9 @@ namespace MonoGame
             if (Globals.Paused && _font != null)
             {
                 const string ptext = "PAUSED";
-                var vp = Globals.SpriteBatch.GraphicsDevice.Viewport;
-                var size = _font.MeasureString(ptext);
-                var pos = new Vector2((vp.Width - size.X) / 2f, (vp.Height - size.Y) / 2f);
+                var vp    = Globals.SpriteBatch.GraphicsDevice.Viewport;
+                var size  = _font.MeasureString(ptext);
+                var pos   = new Vector2((vp.Width - size.X) / 2f, (vp.Height - size.Y) / 2f);
 
                 var pad = new Vector2(12, 6);
                 var rect = new Rectangle(
@@ -419,12 +473,14 @@ namespace MonoGame
             // --- Simple Debug HUD (F3 to toggle) ---
             if (_debugHUD && _font != null)
             {
-                string dbg = $"Facing: {_facingEnemy}\ndot: {_facingDot:0.00}";
-                var pos = new Vector2(12, 12); // top-left corner
+                string dbg = $"Facing: {_facingEnemy}\n" +
+                             $"dot: {_facingDot:0.00}\n" +
+                             $"side: {SideLabel(_facingSide)} (crossZ: {_crossZ:0.00})";
+                var pos  = new Vector2(12, 12); // top-left corner
                 var size = _font.MeasureString(dbg);
                 var rect = new Rectangle((int)(pos.X - 8), (int)(pos.Y - 6),
                                          (int)(size.X + 16), (int)(size.Y + 12));
-                Globals.SpriteBatch.Draw(_white, rect, new Color(0, 0, 0, 160));
+                Globals.SpriteBatch.Draw(_white, rect, new Color(0,0,0,160));
                 Globals.SpriteBatch.DrawString(_font, dbg, pos, Color.White);
             }
         }

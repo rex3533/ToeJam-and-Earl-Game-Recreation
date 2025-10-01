@@ -17,7 +17,7 @@ namespace MonoGame
         private bool _hasSneakAnims = false; // becomes true once we fill rectangles
 
         // Drawing scale (1 for original size)
-        public float Scale { get; set; } = 1.8f;
+        public float Scale { get; set; } = 1.0f;
         // Sneaking state + speed factor
         private bool _sneaking;
         private const float SneakFactor = 0.45f;
