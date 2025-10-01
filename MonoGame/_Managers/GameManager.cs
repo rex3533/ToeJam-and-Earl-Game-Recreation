@@ -50,6 +50,18 @@ namespace MonoGame
             var texItems    = Globals.Content.Load<Texture2D>("Items_Transparent");
             var texFloor    = Globals.Content.Load<Texture2D>("floor_path_tiles");
 
+            // Assignment 3: Rotation demo — spinning present
+            var presentSrc = new Rectangle(2, 6, 25, 18);
+
+            var spinningPresent = new SpinningSprite(texItems, new Vector2(240, 160), GameRole.Item, presentSrc)
+            {
+                Scale = 1f,
+                AngularVelocity = 3.0f, // spin in place
+                OrbitRadius = 12f,      // set 0f if you only want in-place spin
+                OrbitSpeed = 1.2f
+            };
+            _world.Add(spinningPresent);
+
             // World items (unchanged examples)
             _world.Add(new GameObject(texLemon, new Vector2(300, 120), GameRole.NPC,
                                       new Rectangle(8, 8, 67, 60)));

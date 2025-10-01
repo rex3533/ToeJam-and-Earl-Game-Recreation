@@ -157,3 +157,44 @@ C:\Users\maski\OneDrive\Documents\MonoGame\ToeJam-and-Earl-Game-Recreation\MonoG
 C:\Users\maski\OneDrive\Documents\MonoGame\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\MonoGame.pdb
 C:\Users\maski\OneDrive\Documents\MonoGame\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\MonoGame.genruntimeconfig.cache
 C:\Users\maski\OneDrive\Documents\MonoGame\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\ref\MonoGame.dll
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\items_scenery_tranparent.xnb
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\Elevator(1).xnb
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\floor_path_tiles.xnb
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\HUD_Display.xnb
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\Items_Transparent.xnb
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\LemonadeStand.xnb
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\ToeJam_Transparent.xnb
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\Tornado.xnb
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\UIFont.xnb
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\MonoGame.exe
+C:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\MonoGame.deps.json
+C:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\MonoGame.runtimeconfig.json
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\MonoGame.dll
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\MonoGame.pdb
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\MonoGame.Framework.dll
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\NVorbis.dll
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\runtimes\android-arm\native\libopenal.so
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\runtimes\android-arm64\native\libopenal.so
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\runtimes\android-x64\native\libopenal.so
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\runtimes\android-x86\native\libopenal.so
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\runtimes\ios-arm64\native\libopenal.dylib
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\runtimes\iossimulator-arm64\native\libopenal.dylib
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\runtimes\iossimulator-x64\native\libopenal.dylib
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\runtimes\linux-x64\native\libopenal.so
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\runtimes\osx\native\libopenal.dylib
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\runtimes\win-x64\native\openal.dll
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\runtimes\linux-x64\native\libSDL2-2.0.so.0
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\runtimes\osx\native\libSDL2-2.0.0.dylib
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\runtimes\win-x64\native\SDL2.dll
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\MonoGame.csproj.AssemblyReference.cache
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\MonoGame.GeneratedMSBuildEditorConfig.editorconfig
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\MonoGame.AssemblyInfoInputs.cache
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\MonoGame.AssemblyInfo.cs
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\MonoGame.csproj.CoreCompileInputs.cache
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\MonoGame.sourcelink.json
+C:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\MonoGame.csproj.Up2Date
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\MonoGame.dll
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\refint\MonoGame.dll
+c:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\MonoGame.pdb
+C:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\MonoGame.genruntimeconfig.cache
+C:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\ref\MonoGame.dll
