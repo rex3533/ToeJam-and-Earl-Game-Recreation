@@ -38,11 +38,16 @@ namespace MonoGame
         private float _prevDot;                       // last printed dot value
 
         // --- Part 2: Cross product (left/right of facing) ---
-        // Sign convention (2D cross z-component): + = Left, - = Right, 0 = On the line
-        private int _facingSide = 0;                  // -1 = Right, 0 = On, +1 = Left
+        // Sign convention (Y-down screen): + = Right, - = Left, 0 = On the line
+        private int _facingSide = 0;                  // -1 = Left, 0 = On, +1 = Right
         private float _crossZ = 0f;                   // z-component value of facing x toEnemy
         private int _prevFacingSide;                  // last printed side
         private float _prevCross;                     // last printed cross value
+
+        // --- Part 3: Item pickup distance (debug only for now) ---
+        private GameObject _nearestItem = null;       // nearest world item (present)
+        private float _nearestItemDist = float.PositiveInfinity; // pixels (Position→Position)
+        
 
         // Debug HUD toggle (F3)
         private bool _debugHUD = false;
@@ -125,7 +130,7 @@ namespace MonoGame
             if (InputManager.Moving)
                 _playerFacing = Vector2.Normalize(InputManager.Direction);
 
-            // Find nearest enemy (for the facing & side checks)
+            // --- Find nearest enemy (for dot/cross checks) ---
             GameObject nearestEnemy = null;
             float bestD2 = float.MaxValue;
             foreach (var o in _world)
@@ -135,10 +140,10 @@ namespace MonoGame
                 if (d2 < bestD2) { bestD2 = d2; nearestEnemy = o; }
             }
 
-            // Compute results (only if we found an enemy)
+            // --- DOT/CROSS results (only if we found an enemy) ---
             if (nearestEnemy != null)
             {
-                // ---- DOT: is the enemy in front? (angle < 90° if dot > 0) ----
+                // DOT: enemy in front? (angle < 90° if dot > 0)
                 _facingEnemy = IsFacingTarget(
                     _toejam.Position,
                     _playerFacing,
@@ -147,7 +152,7 @@ namespace MonoGame
                     0f // minDot=0 -> anything in front; increase to narrow the cone
                 );
 
-                // ---- CROSS: is the enemy left or right of the facing direction? ----
+                // CROSS: enemy on Left/Right of facing? (Y-down screen: + = Right, - = Left)
                 _facingSide = SideOfFacing(
                     _toejam.Position,
                     _playerFacing,
@@ -174,6 +179,23 @@ namespace MonoGame
                 _facingDot = 0f;
                 _facingSide = 0;
                 _crossZ = 0f;
+            }
+
+            // --- Part 3: Nearest item distance (for pickup later) ---
+            _nearestItem = null;
+            _nearestItemDist = float.PositiveInfinity;
+
+            foreach (var o in _world)
+            {
+                if (o.Role != GameRole.Item) continue;
+                // NOTE: Using Position-to-Position distance (simple + fast).
+                // Later we can switch to center-to-center if needed.
+                float d = Vector2.Distance(_toejam.Position, o.Position);
+                if (d < _nearestItemDist)
+                {
+                    _nearestItemDist = d;
+                    _nearestItem = o;
+                }
             }
 
             // Toggle inventory with X
@@ -274,7 +296,7 @@ namespace MonoGame
         }
 
         // 2D side test using cross product (z-component of facing × toTarget).
-        // Returns +1 (Left), -1 (Right), or 0 (colinear). crossOut holds the z value.
+        // Y-down screen: + => Right, - => Left, 0 => On the line.
         private static int SideOfFacing(
             Vector2 pos,
             Vector2 facing,
@@ -289,15 +311,15 @@ namespace MonoGame
             Vector2 toTarget = target - pos;
             if (toTarget.LengthSquared() < eps) return 0;
 
-            // Normalizing not required for sign, but keeps cross magnitudes comparable
+            // Normalizing not required for sign; keeps magnitudes stable
             facing   = Vector2.Normalize(facing);
             toTarget = Vector2.Normalize(toTarget);
 
             float z = facing.X * toTarget.Y - facing.Y * toTarget.X;
             crossOut = z;
 
-            if (z >  eps) return +1;  // Left (target is counter-clockwise from facing)
-            if (z < -eps) return -1;  // Right
+            if (z >  eps) return +1;  // Right
+            if (z < -eps) return -1;  // Left
             return 0;                  // On the line
         }
 
@@ -473,9 +495,15 @@ namespace MonoGame
             // --- Simple Debug HUD (F3 to toggle) ---
             if (_debugHUD && _font != null)
             {
+                string itemLine = _nearestItem != null
+                    ? $"nearest item: {_nearestItemDist:0.0} px"
+                    : "nearest item: none";
+
                 string dbg = $"Facing: {_facingEnemy}\n" +
                              $"dot: {_facingDot:0.00}\n" +
-                             $"side: {SideLabel(_facingSide)} (crossZ: {_crossZ:0.00})";
+                             $"side: {SideLabel(_facingSide)} (crossZ: {_crossZ:0.00})\n" +
+                             itemLine;
+
                 var pos  = new Vector2(12, 12); // top-left corner
                 var size = _font.MeasureString(dbg);
                 var rect = new Rectangle((int)(pos.X - 8), (int)(pos.Y - 6),
