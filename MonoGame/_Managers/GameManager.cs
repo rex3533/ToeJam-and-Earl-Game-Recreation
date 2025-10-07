@@ -19,16 +19,15 @@ namespace MonoGame
         private int _invIndex = 0;
         private KeyboardState _prevKb = Keyboard.GetState();
 
-        // Can rename/expand this freely
-        private readonly List<(string name, int count)> _inv = new()
-        {
-            ("Decoy", 3), ("Hi-Tops", 2), ("Tomatoes", 5)
-        };
+        // === PRESENT INVENTORY ===
+        // Each entry tracks a present type (id 1..28), count, and shows ??? until identified.
+        private readonly List<(int id, int count)> _presentInv = new();
 
-        // Equipped + active timed power
-        private string _equipped = null;     // present name equipped from inventory
+        // Equipped + active timed power (kept from before for Hi-Tops etc.)
+        private string _equipped = null;     // (unused for presents; we "use" directly)
         private string _activePower = null;  // e.g., "Hi-Tops"
         private float _powerTimer = 0f;      // seconds remaining
+        private int   _bigBucks = 0;         // simple currency counter
 
         // --- Part 2: Facing check (dot product) ---
         private Vector2 _playerFacing = new(1f, 0f);  // last non-zero input direction
@@ -38,16 +37,16 @@ namespace MonoGame
         private float _prevDot;                       // last printed dot value
 
         // --- Part 2: Cross product (left/right of facing) ---
-        // Sign convention (Y-down screen): + = Right, - = Left, 0 = On the line
+        // Y-down screen: + = Right, - = Left, 0 = On the line
         private int _facingSide = 0;                  // -1 = Left, 0 = On, +1 = Right
         private float _crossZ = 0f;                   // z-component value of facing x toEnemy
         private int _prevFacingSide;                  // last printed side
         private float _prevCross;                     // last printed cross value
 
-        // --- Part 3: Item pickup distance (debug only for now) ---
+        // --- Part 3: Item pickup distance ---
         private GameObject _nearestItem = null;       // nearest world item (present)
         private float _nearestItemDist = float.PositiveInfinity; // pixels (Position→Position)
-        
+        private const float PICKUP_RADIUS = 28f;      // auto-pick threshold (px)
 
         // Debug HUD toggle (F3)
         private bool _debugHUD = false;
@@ -73,27 +72,24 @@ namespace MonoGame
             var texItems = Globals.Content.Load<Texture2D>("Items_Transparent");
             var texFloor = Globals.Content.Load<Texture2D>("floor_path_tiles");
 
-            // Assignment 3: Rotation demo — spinning present
-            // (Using the "fast works" rectangle you said works)
+            // Assignment 3: Rotation demo — spinning present (now using Present class)
+            // Using the "fast works" rectangle I used earlier (adjust when map all 28)
             var presentSrc = new Rectangle(2, 6, 25, 18);
-
-            var spinningPresent = new SpinningSprite(texItems, new Vector2(240, 160), GameRole.Item, presentSrc)
+            // Example: ID 5 is "Hi-Tops" so your F3 can later show "present5: Hi-Tops"
+            var presentHiTops = new Present(texItems, new Vector2(240, 160), presentSrc, id: 5)
             {
                 Scale = 1f,
-                AngularVelocity = 3.0f, // spin in place
-                OrbitRadius = 12f,      // set 0f if you only want in-place spin
-                OrbitSpeed = 1.2f
+                AngularVelocity = 3.0f // only THIS one spins
             };
-            _world.Add(spinningPresent);
-            // end of spinning present
+            _world.Add(presentHiTops);
+            // end of spinning present  
 
             // World items (unchanged examples)
             _world.Add(new GameObject(texLemon, new Vector2(300, 120), GameRole.NPC,
                                       new Rectangle(8, 8, 67, 60)));
             _world.Add(new GameObject(texTornado, new Vector2(360, 120), GameRole.Enemy,
                                       new Rectangle(152, 57, 34, 33)));
-            _world.Add(new GameObject(texItems, new Vector2(420, 120), GameRole.Item,
-                                      new Rectangle(4, 39, 25, 18)));
+            _world.Add(new Present(texItems, new Vector2(420, 120), new Rectangle(4, 39, 25, 18), id: 1)); // Decoy present
             _world.Add(new GameObject(texElevator, new Vector2(480, 104), GameRole.Elevator,
                                       new Rectangle(2, 3, 38, 59)));
             _world.Add(new GameObject(texHud, new Vector2(0, 768 - 33), GameRole.UI,
@@ -152,7 +148,7 @@ namespace MonoGame
                     0f // minDot=0 -> anything in front; increase to narrow the cone
                 );
 
-                // CROSS: enemy on Left/Right of facing? (Y-down screen: + = Right, - = Left)
+                // CROSS: enemy on Right/Left of facing? (Y-down: + = Right, - = Left)
                 _facingSide = SideOfFacing(
                     _toejam.Position,
                     _playerFacing,
@@ -181,21 +177,26 @@ namespace MonoGame
                 _crossZ = 0f;
             }
 
-            // --- Part 3: Nearest item distance (for pickup later) ---
+            // --- Part 3: Nearest item distance (for pickup) ---
             _nearestItem = null;
             _nearestItemDist = float.PositiveInfinity;
-
             foreach (var o in _world)
             {
                 if (o.Role != GameRole.Item) continue;
-                // NOTE: Using Position-to-Position distance (simple + fast).
-                // Later we can switch to center-to-center if needed.
-                float d = Vector2.Distance(_toejam.Position, o.Position);
+                float d = Vector2.Distance(_toejam.Position + CenterOf(o), o.Position + CenterOf(o));
                 if (d < _nearestItemDist)
                 {
                     _nearestItemDist = d;
                     _nearestItem = o;
                 }
+            }
+
+            // Auto-pickup if close enough and it's a Present
+            if (_nearestItem is Present p && _nearestItemDist <= PICKUP_RADIUS)
+            {
+                AddPresentToInventory(p.Id, 1);
+                Globals.ShowToast($"Picked Present{p.Id}: {PresentRegistry.GetLabel(p.Id)}", 1.2f);
+                p.Alive = false; // will be removed at end of Update
             }
 
             // Toggle inventory with X
@@ -216,18 +217,15 @@ namespace MonoGame
                 bool rightNow = kb.IsKeyDown(Keys.Right);
                 bool rightPrev= _prevKb.IsKeyDown(Keys.Right);
 
-                if (leftNow && !leftPrev && _inv.Count > 0)
-                    _invIndex = (_invIndex - 1 + _inv.Count) % _inv.Count;
-                if (rightNow && !rightPrev && _inv.Count > 0)
-                    _invIndex = (_invIndex + 1) % _inv.Count;
+                if (leftNow && !leftPrev && _presentInv.Count > 0)
+                    _invIndex = (_invIndex - 1 + _presentInv.Count) % _presentInv.Count;
+                if (rightNow && !rightPrev && _presentInv.Count > 0)
+                    _invIndex = (_invIndex + 1) % _presentInv.Count;
 
-                // EQUIP with Z (does NOT consume)
-                if (InputManager.APressed && _inv.Count > 0)
+                // USE a present with Z (opens it; identifies type; applies basic effect)
+                if (InputManager.APressed && _presentInv.Count > 0)
                 {
-                    _equipped = _inv[_invIndex].name;
-                    Globals.ShowToast($"Equipped {_equipped}", 1.2f);
-                    // Optional auto-close:
-                    // _invOpen = false;
+                    UseSelectedPresent();
                 }
 
                 _prevKb = kb;
@@ -239,12 +237,12 @@ namespace MonoGame
             // If paused, freeze sim (draw still runs)
             if (Globals.Paused) return;
 
-            // === Gameplay: Z pressed ===
+            // === Gameplay: Z pressed (outside inventory) ===
             if (InputManager.APressed)
             {
                 if (!string.IsNullOrEmpty(_equipped))
                 {
-                    UseEquipped(); // consume/effect
+                    UseEquipped(); // legacy path (kept if you want it)
                 }
                 else
                 {
@@ -265,9 +263,77 @@ namespace MonoGame
             _toejam.Update();
             foreach (var o in _world) o.Update();
 
-            // Remove expired objects (e.g., decoy powerups)
+            // Remove expired objects (e.g., decoy, picked-up presents)
             for (int i = _world.Count - 1; i >= 0; i--)
                 if (!_world[i].Alive) _world.RemoveAt(i);
+        }
+
+        // Helper: center offset from Source or Texture
+        private static Vector2 CenterOf(GameObject o)
+        {
+            var src = o.Source ?? new Rectangle(0, 0, o.Sprite.Width, o.Sprite.Height);
+            return new Vector2(src.Width / 2f, src.Height / 2f);
+        }
+
+        // === PRESENT INVENTORY HELPERS ===
+        private void AddPresentToInventory(int id, int amount)
+        {
+            int i = _presentInv.FindIndex(s => s.id == id);
+            if (i >= 0) _presentInv[i] = (id, _presentInv[i].count + amount);
+            else _presentInv.Add((id, amount));
+            // keep selection within bounds
+            if (_invIndex >= _presentInv.Count) _invIndex = _presentInv.Count - 1;
+        }
+
+        private void UseSelectedPresent()
+        {
+            if (_presentInv.Count == 0) return;
+
+            var (id, count) = _presentInv[_invIndex];
+
+            // Identify on first use
+            bool firstTime = !PresentRegistry.Identified[id];
+            PresentRegistry.Identified[id] = true;
+
+            string name = PresentRegistry.DisplayNames[id];
+            if (firstTime) Globals.ShowToast($"Identified: {name}", 1.4f);
+            else          Globals.ShowToast($"Opened: {name}", 1.1f);
+
+            // Apply a few simple effects now; leave most as TODO
+            switch (name)
+            {
+                case "Hi-Tops":
+                    StartPower("Hi-Tops", seconds: 10f, speedMult: 1.75f);
+                    break;
+
+                case "Decoy":
+                    {
+                        // Spawn the decoy at player position (your existing Powerup)
+                        var decoy = Powerup.CreateDecoy(_toejam.Texture, _toejam.Position, lifeSeconds: 6f);
+                        decoy.Scale = _toejam.Scale;
+                        _world.Add(decoy);
+                        break;
+                    }
+
+                case "Big Bucks":
+                    _bigBucks += 25; // placeholder amount
+                    Globals.ShowToast($"+25 Big Bucks (total: {_bigBucks})", 1.2f);
+                    break;
+
+                default:
+                    // Not implemented effects yet
+                    Globals.ShowToast($"Opened: {name} (effect TBD)", 1.2f);
+                    break;
+            }
+
+            // Consume one
+            count--;
+            if (count <= 0) _presentInv.RemoveAt(_invIndex);
+            else            _presentInv[_invIndex] = (id, count);
+
+            // keep selection valid
+            if (_invIndex >= _presentInv.Count) _invIndex = _presentInv.Count - 1;
+            if (_invIndex < 0) _invIndex = 0;
         }
 
         // Returns true if target lies in front of pos given a facing vector.
@@ -325,55 +391,11 @@ namespace MonoGame
 
         private static string SideLabel(int s) => s > 0 ? "Right" : (s < 0 ? "Left" : "On");
 
+        // === Legacy "equipped" path kept from before (not used by presents) ===
         private void UseEquipped()
         {
-            // Locate equipped item in inventory to ensure we have charges
-            int idx = _inv.FindIndex(slot => slot.name == _equipped);
-            if (idx < 0 || _inv[idx].count <= 0)
-            {
-                Globals.ShowToast($"{_equipped} not available", 1.2f);
-                _equipped = null;
-                return;
-            }
-
-            switch (_equipped)
-            {
-                case "Decoy":
-                {
-                    // Spawn animated decoy at player position (your 3 frames @ 27x42)
-                    var decoy = Powerup.CreateDecoy(_toejam.Texture, _toejam.Position, lifeSeconds: 6f);
-                    decoy.Scale = _toejam.Scale; // match player size
-                    _world.Add(decoy);
-                    ConsumeOne(idx);
-                    Globals.ShowToast("Decoy deployed!", 1.2f);
-                    _equipped = null; // one-shot
-                    break;
-                }
-
-                case "Hi-Tops":
-                {
-                    // Example of a timed power (10s)
-                    StartPower("Hi-Tops", seconds: 10f, speedMult: 1.75f);
-                    ConsumeOne(idx);
-                    _equipped = null;
-                    break;
-                }
-
-                default:
-                {
-                    Globals.ShowToast($"Using {_equipped} not implemented yet", 1.2f);
-                    _equipped = null; // or keep equipped until implemented
-                    break;
-                }
-            }
-        }
-
-        private void ConsumeOne(int idx)
-        {
-            var (n, c) = _inv[idx];
-            c--;
-            if (c <= 0) _inv.RemoveAt(idx);
-            else _inv[idx] = (n, c);
+            // (Kept for compatibility;  can remove later if only presents are used)
+            Globals.ShowToast("Equipped-use path (legacy) not used with present system", 1.2f);
         }
 
         private void StartPower(string name, float seconds, float speedMult)
@@ -435,23 +457,25 @@ namespace MonoGame
                 var y = box.Y + 12;
                 var x = box.X + 14;
 
-                if (_inv.Count == 0)
+                if (_presentInv.Count == 0)
                 {
                     Globals.SpriteBatch.DrawString(_font, "No presents", new Vector2(x, y), Color.White);
                 }
                 else
                 {
-                    for (int i = 0; i < _inv.Count; i++)
+                    for (int i = 0; i < _presentInv.Count; i++)
                     {
-                        var s = (i == _invIndex)
-                            ? $"> {_inv[i].name} x{_inv[i].count} <"
-                            : $"{_inv[i].name} x{_inv[i].count}";
-                        Globals.SpriteBatch.DrawString(_font, s, new Vector2(x, y), Color.White);
+                        var (id, count) = _presentInv[i];
+                        string label = PresentRegistry.GetLabel(id);
+                        string line = (i == _invIndex)
+                            ? $"> Present{id}: {label} x{count} <"
+                            : $"Present{id}: {label} x{count}";
+                        Globals.SpriteBatch.DrawString(_font, line, new Vector2(x, y), Color.White);
                         y += 20;
                     }
                 }
 
-                Globals.SpriteBatch.DrawString(_font, "Z: Equip   X: Close   Left/Right: Select",
+                Globals.SpriteBatch.DrawString(_font, "Z: Use (identify/open)   X: Close   Left/Right: Select",
                     new Vector2(box.X + 14, box.Bottom - 24), Color.White);
             }
 
@@ -459,7 +483,7 @@ namespace MonoGame
             if (_font != null)
             {
                 var hudText = "";
-                if (!string.IsNullOrEmpty(_equipped)) hudText += $"Equipped: {_equipped}\n";
+                if (_bigBucks > 0) hudText += $"Big Bucks: {_bigBucks}\n";
                 if (_activePower != null) hudText += $"{_activePower}: {System.Math.Ceiling(_powerTimer)}s";
 
                 if (!string.IsNullOrEmpty(hudText))
@@ -496,7 +520,7 @@ namespace MonoGame
             if (_debugHUD && _font != null)
             {
                 string itemLine = _nearestItem != null
-                    ? $"nearest item: {_nearestItemDist:0.0} px"
+                    ? $"nearest item: {_nearestItemDist:0.0} px (auto≤{PICKUP_RADIUS})"
                     : "nearest item: none";
 
                 string dbg = $"Facing: {_facingEnemy}\n" +
