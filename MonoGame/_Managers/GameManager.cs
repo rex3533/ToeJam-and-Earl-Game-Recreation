@@ -84,13 +84,17 @@ namespace MonoGame
             _world.Add(presentHiTops);
             // end of spinning present  
 
-            // World items (unchanged examples)
+            // World items 
             _world.Add(new GameObject(texLemon, new Vector2(300, 120), GameRole.NPC,
                                       new Rectangle(8, 8, 67, 60)));
             _world.Add(new GameObject(texTornado, new Vector2(360, 120), GameRole.Enemy,
                                       new Rectangle(152, 57, 34, 33)));
             _world.Add(new Present(texItems, new Vector2(420, 120), new Rectangle(4, 39, 25, 18), id: 1)); // Decoy present
             _world.Add(new Present(texItems, new Vector2(520, 120), new Rectangle(4, 39, 25, 18), id: 1));
+            // --- Hi-Tops present (static, no spin) ---
+            var hiTopsSrc = new Rectangle(2, 6, 25, 18);
+            _world.Add(new Present(texItems, new Vector2(640, 220), hiTopsSrc, id: 5) { Scale = 1f });
+
             _world.Add(new GameObject(texElevator, new Vector2(480, 104), GameRole.Elevator,
                                       new Rectangle(2, 3, 38, 59)));
             _world.Add(new GameObject(texHud, new Vector2(0, 768 - 33), GameRole.UI,
@@ -521,7 +525,7 @@ namespace MonoGame
             if (_debugHUD && _font != null)
             {
                 string itemLine = _nearestItem != null
-                    ? $"nearest item: {_nearestItemDist:0.0} px (auto≤{PICKUP_RADIUS})"
+                    ? $"nearest item: {_nearestItemDist:0.0} px (auto<={PICKUP_RADIUS})"
                     : "nearest item: none";
 
                 string dbg = $"Facing: {_facingEnemy}\n" +
