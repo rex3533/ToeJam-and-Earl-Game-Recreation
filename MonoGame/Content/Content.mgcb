@@ -13,6 +13,12 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin BGMToeJam.wav
+/importer:WavImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:BGMToeJam.wav
+
 #begin Elevator(1).png
 /importer:TextureImporter
 /processor:TextureProcessor

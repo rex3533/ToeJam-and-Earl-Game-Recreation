@@ -72,6 +72,10 @@ namespace MonoGame
             var texItems = Globals.Content.Load<Texture2D>("Items_Transparent");
             var texFloor = Globals.Content.Load<Texture2D>("floor_path_tiles");
 
+            //--- Audio ----
+            AudioManager.Init(Globals.Content);
+            AudioManager.StartBgm();
+
             // Assignment 3: Rotation demo — spinning present (now using Present class)
             // Using the "fast works" rectangle I used earlier (adjust when map all 28)
             var presentSrc = new Rectangle(2, 6, 25, 18);
@@ -126,6 +130,9 @@ namespace MonoGame
         {
             // Always process input so toggles are detected
             InputManager.Update();
+            
+            // Audio update (for chaining)
+            AudioManager.Update();
 
             // Update facing with last non-zero move input
             if (InputManager.Moving)

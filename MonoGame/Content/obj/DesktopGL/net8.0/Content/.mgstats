@@ -1,4 +1,5 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/BGMToeJam.wav","C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/bin/DesktopGL/Content/BGMToeJam.xnb","SongProcessor","SongContent",280993482,127,20.37342
 "C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Elevator(1).png","C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/bin/DesktopGL/Content/Elevator(1).xnb","TextureProcessor","Texture2DContent",7378,680021,0.3860885
 "C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/floor_path_tiles.png","C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/bin/DesktopGL/Content/floor_path_tiles.xnb","TextureProcessor","Texture2DContent",58037,524373,0.0333327
 "C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/HUD_Display.png","C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/bin/DesktopGL/Content/HUD_Display.xnb","TextureProcessor","Texture2DContent",52512,1976149,0.116955

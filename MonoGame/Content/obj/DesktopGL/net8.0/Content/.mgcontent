@@ -4,6 +4,7 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/BGMToeJam.wav</File>
     <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Elevator(1).png</File>
     <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/floor_path_tiles.png</File>
     <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/HUD_Display.png</File>
@@ -14,6 +15,7 @@
     <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/UIFont.spritefont</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
