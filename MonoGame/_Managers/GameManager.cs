@@ -221,13 +221,25 @@ namespace MonoGame
             bool f3Prev = _prevKb.IsKeyDown(Keys.F3);
             if (f3Now && !f3Prev) _debugHUD = !_debugHUD;
 
+            // --- AUDIO VOLUME KEYS ---
+            if (InputManager.VolumeDownPressed)
+            {
+                AudioManager.NudgeVolume(-0.1f);
+                Globals.ShowToast($"Vol: {AudioManager.SfxVolume:0.00}", 0.8f);
+            }
+            if (InputManager.VolumeUpPressed)
+            {
+                AudioManager.NudgeVolume(+0.1f);
+                Globals.ShowToast($"Vol: {AudioManager.SfxVolume:0.00}", 0.8f);
+            }
+
             if (_invOpen)
             {
                 // Move selection (edge on left/right)
-                bool leftNow  = kb.IsKeyDown(Keys.Left);
+                bool leftNow = kb.IsKeyDown(Keys.Left);
                 bool leftPrev = _prevKb.IsKeyDown(Keys.Left);
                 bool rightNow = kb.IsKeyDown(Keys.Right);
-                bool rightPrev= _prevKb.IsKeyDown(Keys.Right);
+                bool rightPrev = _prevKb.IsKeyDown(Keys.Right);
 
                 if (leftNow && !leftPrev && _presentInv.Count > 0)
                     _invIndex = (_invIndex - 1 + _presentInv.Count) % _presentInv.Count;

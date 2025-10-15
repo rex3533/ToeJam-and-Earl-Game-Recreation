@@ -10,11 +10,13 @@
     <File>c:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/HUD_Display.png</File>
     <File>c:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Items_Transparent.png</File>
     <File>c:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/LemonadeStand.png</File>
+    <File>c:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Sparkles.wav</File>
     <File>c:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/ToeJam_Transparent.png</File>
     <File>c:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Tornado.png</File>
     <File>c:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/UIFont.spritefont</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

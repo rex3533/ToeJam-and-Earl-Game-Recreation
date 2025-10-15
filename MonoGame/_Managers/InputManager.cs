@@ -15,6 +15,9 @@ namespace MonoGame
         public static bool APressed { get; private set; }   // edge (just pressed this frame)
         public static bool AHeld    { get; private set; }   // level (held down)
         public static bool BPressed { get; private set; }   // edge
+        public static bool VolumeUpPressed   { get; private set; }  // edge: + (or numpad +)
+        public static bool VolumeDownPressed { get; private set; }  // edge: - (or numpad -)
+
 
         private const Keys KeyA = Keys.Z;   // “A” action
         private const Keys KeyB = Keys.X;   // “B” inventory
@@ -34,7 +37,15 @@ namespace MonoGame
             // Pause toggle (edge)
             bool startNow  = kb.IsKeyDown(Keys.Enter) || kb.IsKeyDown(Keys.Space);
             bool startPrev = _prevKb.IsKeyDown(Keys.Enter) || _prevKb.IsKeyDown(Keys.Space);
-            if (startNow && !startPrev) Globals.TogglePause();   // matches baseline
+            if (startNow && !startPrev)
+            {
+                Globals.TogglePause();
+
+                // sync the BGM with game pause ONLY
+                if (Globals.Paused) AudioManager.PauseBgm();
+                else                AudioManager.ResumeBgm();
+            }
+
             // Map/Menu toast (edge on M)
             bool mNow  = kb.IsKeyDown(Keys.M);
             bool mPrev = _prevKb.IsKeyDown(Keys.M);
@@ -51,6 +62,17 @@ namespace MonoGame
             BPressed = bNow && !bPrev;
 
             _prevKb = kb;
+
+            // === Volume up/down (+ and -) handling ===
+            // Volume keys: OemPlus ('= / +' key) or Numpad Add; OemMinus ('-' key) or Numpad Subtract
+            bool plusNow  = kb.IsKeyDown(Keys.OemPlus)  || kb.IsKeyDown(Keys.Add);
+            bool plusPrev = _prevKb.IsKeyDown(Keys.OemPlus) || _prevKb.IsKeyDown(Keys.Add);
+            VolumeUpPressed = plusNow && !plusPrev;
+
+            bool minusNow  = kb.IsKeyDown(Keys.OemMinus) || kb.IsKeyDown(Keys.Subtract);
+            bool minusPrev = _prevKb.IsKeyDown(Keys.OemMinus) || _prevKb.IsKeyDown(Keys.Subtract);
+            VolumeDownPressed = minusNow && !minusPrev;
+
         }
     }
 }

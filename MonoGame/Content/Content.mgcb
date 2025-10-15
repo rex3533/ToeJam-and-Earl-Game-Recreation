@@ -79,6 +79,12 @@
 /processorParam:TextureFormat=Color
 /build:LemonadeStand.png
 
+#begin Sparkles.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sparkles.wav
+
 #begin ToeJam_Transparent.png
 /importer:TextureImporter
 /processor:TextureProcessor

@@ -135,5 +135,23 @@ namespace MonoGame
             else if (MediaPlayer.State == MediaState.Paused) MediaPlayer.Resume();
             else MediaPlayer.Play(_bgm);
         }
+
+            // Track whether BGM was playing when the game pause started
+        private static bool _bgmWasPlayingBeforePause = false;
+        public static void PauseBgm()
+        {
+            // remember if we should resume later
+            _bgmWasPlayingBeforePause = (MediaPlayer.State == MediaState.Playing);
+
+            if (_bgm != null && MediaPlayer.State == MediaState.Playing)
+                MediaPlayer.Pause();
+        }
+        public static void ResumeBgm()
+        {
+            if (!_bgmWasPlayingBeforePause) return;
+
+            if (_bgm != null && MediaPlayer.State == MediaState.Paused)
+                MediaPlayer.Resume();
+        }
     }
 }
