@@ -7,45 +7,63 @@ namespace MonoGame
 {
     public static class AudioManager
     {
-        // Loaded assets (null-safe; code won’t crash if files haven’t been added yet)
+        // ---- Loaded assets ----
         private static SoundEffect _sfxClick, _sfxPickup, _sfxA, _sfxB;
+        private static SoundEffect _sfxHurt;         // ToeJam hurt SFX
+        private static SoundEffect _sfxWakeup1;      // quiet "wakeup"
+        private static SoundEffect _sfxWakeup2;      // loud  "WAKEUP!"
         private static Song _bgm;
 
-        // The SFX instance we’re actively demoing (pause/volume/pitch)
+        // Active instance for instance-level controls (volume/pitch/pause)
         private static SoundEffectInstance _active;
 
         // Chain state: play B immediately after A finishes
         private static SoundEffectInstance _chainA, _chainB;
         private static bool _chainRequested, _chainBStarted;
 
-        // Public for HUD/debug
-        public static float SfxVolume => _active?.Volume ?? 0f;    // 0..1
-        public static float SfxPitch  => _active?.Pitch  ?? 0f;    // -1..1
-        public static bool  SfxPlaying => _active?.State == SoundState.Playing;
-        public static bool  ChainActive => _chainRequested && !_chainBStarted;
-        public static bool  BgmPlaying  => MediaPlayer.State == MediaState.Playing;
+        // ---- Public status for HUD/debug ----
+        public static float SfxVolume    => _active?.Volume ?? 0f;             // per-instance 0..1
+        public static float SfxPitch     => _active?.Pitch  ?? 0f;             // per-instance -1..1
+        public static bool  SfxPlaying   => _active?.State == SoundState.Playing;
+        public static bool  ChainActive  => _chainRequested && !_chainBStarted;
+        public static bool  BgmPlaying   => MediaPlayer.State == MediaState.Playing;
+        public static float MasterSfxVolume => SoundEffect.MasterVolume;       // global 0..1
+        public static float BgmVolume       => MediaPlayer.Volume;             // global 0..1
+
+        // Remember if BGM was playing when game pause began (so we only resume if appropriate)
+        private static bool _bgmWasPlayingBeforePause = false;
 
         public static void Init(ContentManager content)
         {
-            _sfxClick  = TryLoad<SoundEffect>(content, "sfx_click");
-            _sfxPickup = TryLoad<SoundEffect>(content, "sfx_pickup");
-            _sfxA      = TryLoad<SoundEffect>(content, "sfx_a");
-            _sfxB      = TryLoad<SoundEffect>(content, "sfx_b");
-            _bgm       = TryLoad<Song>(content, "BGMToeJam");
+            // Common SFX used elsewhere in project
+            _sfxClick   = TryLoad<SoundEffect>(content, "sfx_click");
+            _sfxPickup  = TryLoad<SoundEffect>(content, "sfx_pickup");
+            _sfxA       = TryLoad<SoundEffect>(content, "sfx_a");
+            _sfxB       = TryLoad<SoundEffect>(content, "sfx_b");
+
+            // New SFX for Assignment 4 demos
+            _sfxHurt    = TryLoad<SoundEffect>(content, "Hurt_ToeJam") ?? TryLoad<SoundEffect>(content, "hurt_toejam");
+            _sfxWakeup1 = TryLoad<SoundEffect>(content, "WakeUp");           // wakeup.wav
+            _sfxWakeup2 = TryLoad<SoundEffect>(content, "WakeUp_Shout");     // WAKEUP!.wav -> asset name without '!'
+
+            // BGM (accept either asset name)
+            _bgm = TryLoad<Song>(content, "bgm_toejam") ?? TryLoad<Song>(content, "BGMToeJam");
 
             // Reasonable defaults
-            MediaPlayer.IsRepeating = true;
-            MediaPlayer.Volume = 0.65f;
+            SoundEffect.MasterVolume = 0.90f;   // affects all SoundEffects globally
+            MediaPlayer.IsRepeating  = true;
+            MediaPlayer.Volume       = 0.65f;
         }
 
         private static T TryLoad<T>(ContentManager c, string name) where T : class
         {
             try { return c.Load<T>(name); }
-            catch { return null; } 
+            catch { return null; } // allow running without assets so you can wire screenshots
         }
 
-        // ---- Required demos ----
-        // 1) Play a sound off an event (e.g., button/menu)
+        // ----------------- Required demos -----------------
+
+        // #1 (example): play a sound off an event (e.g., button/menu) *not used
         public static void PlayClick()
         {
             if (_sfxClick == null) return;
@@ -55,40 +73,62 @@ namespace MonoGame
             _active.Play();
         }
 
-        // e.g., on item pickup
+        // Event sound for “hurt” (ToeJam colliding with enemy)
+        public static void PlayHurt()
+        {
+            if (_sfxHurt == null) return;
+            var inst = _sfxHurt.CreateInstance();
+            inst.Volume = 0.9f;
+            inst.Play();
+        }
+
+        // Another simple event SFX (pickup)
         public static void PlayPickup()
         {
             if (_sfxPickup == null) return;
             var inst = _sfxPickup.CreateInstance();
             inst.Volume = 0.9f;
             inst.Play();
-            // keep _active for the “control” demo tied to click/chain
         }
 
-        // 2) Play B as soon as A finishes
+        // #2: A sound plays as soon as another finishes (generic A->B)
         public static void StartChain()
         {
             if (_sfxA == null || _sfxB == null) return;
             _chainA = _sfxA.CreateInstance();
             _chainB = _sfxB.CreateInstance();
             _chainRequested = true;
-            _chainBStarted = false;
+            _chainBStarted  = false;
 
-            // also set this active so you can pause/volume/pitch it while it plays
+            _active = _chainA; // let + / - control instance volume live
+            _active.Volume = 0.9f;
+            _active.Pitch  = 0f;
+            _chainA.Play();
+        }
+
+        // Specific chain for #2, idea: wakeup -> WAKEUP!
+        public static void StartChainWakeup()
+        {
+            if (_sfxWakeup1 == null || _sfxWakeup2 == null) return;
+
+            _chainA = _sfxWakeup1.CreateInstance();
+            _chainB = _sfxWakeup2.CreateInstance();
+            _chainRequested = true;
+            _chainBStarted  = false;
+
             _active = _chainA;
             _active.Volume = 0.9f;
-            _active.Pitch = 0f;
+            _active.Pitch  = 0f;
             _chainA.Play();
         }
 
         public static void Update()
         {
             // Chain polling (SoundEffectInstance doesn’t raise events)
-            if (_chainRequested && !_chainBStarted && _chainA != null &&
-                _chainA.State == SoundState.Stopped)
+            if (_chainRequested && !_chainBStarted && _chainA != null && _chainA.State == SoundState.Stopped)
             {
                 _chainBStarted = true;
-                _active = _chainB;           // take over “active” for controls if you want
+                _active = _chainB; // instance controls now apply to B
                 _active.Volume = 0.9f;
                 _active.Pitch  = 0f;
                 _chainB.Play();
@@ -101,7 +141,7 @@ namespace MonoGame
             }
         }
 
-        // 3) Pause/Resume the currently playing SFX
+        // Pause/Resume the currently playing SFX instance (for the instance-control demo)
         public static void TogglePauseSfx()
         {
             if (_active == null) return;
@@ -109,25 +149,34 @@ namespace MonoGame
             else if (_active.State == SoundState.Paused) _active.Resume();
         }
 
-        // 4) Modify volume/pitch while it’s playing
+        // Instance-level volume/pitch on the active SFX
         public static void NudgeVolume(float delta)
         {
             if (_active == null) return;
             _active.Volume = MathHelper.Clamp(_active.Volume + delta, 0f, 1f);
         }
+
         public static void NudgePitch(float delta)
         {
             if (_active == null) return;
             _active.Pitch = MathHelper.Clamp(_active.Pitch + delta, -1f, 1f);
         }
 
-        // 5) Background music
+        // Global volume for ALL sounds (SFX master + BGM)
+        public static void NudgeGlobalVolume(float delta)
+        {
+            SoundEffect.MasterVolume = MathHelper.Clamp(SoundEffect.MasterVolume + delta, 0f, 1f);
+            MediaPlayer.Volume       = MathHelper.Clamp(MediaPlayer.Volume       + delta, 0f, 1f);
+        }
+
+        // ---- Background music (Song) ----
         public static void StartBgm()
         {
             if (_bgm == null) return;
             if (MediaPlayer.State != MediaState.Playing)
                 MediaPlayer.Play(_bgm);
         }
+
         public static void ToggleBgmPause()
         {
             if (_bgm == null) return;
@@ -136,20 +185,16 @@ namespace MonoGame
             else MediaPlayer.Play(_bgm);
         }
 
-            // Track whether BGM was playing when the game pause started
-        private static bool _bgmWasPlayingBeforePause = false;
         public static void PauseBgm()
         {
-            // remember if we should resume later
             _bgmWasPlayingBeforePause = (MediaPlayer.State == MediaState.Playing);
-
             if (_bgm != null && MediaPlayer.State == MediaState.Playing)
                 MediaPlayer.Pause();
         }
+
         public static void ResumeBgm()
         {
             if (!_bgmWasPlayingBeforePause) return;
-
             if (_bgm != null && MediaPlayer.State == MediaState.Paused)
                 MediaPlayer.Resume();
         }

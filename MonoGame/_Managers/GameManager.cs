@@ -51,6 +51,9 @@ namespace MonoGame
         // Debug HUD toggle (F3)
         private bool _debugHUD = false;
 
+        // --- NEW: a simple enemy hitbox (tornado) ---
+        private Enemy _tornado;
+
         public void Init(GraphicsDevice gd)
         {
             // Player
@@ -65,21 +68,19 @@ namespace MonoGame
             _font = Globals.Content.Load<SpriteFont>("UIFont");
 
             // ---- textures (adjust asset names if needed) ----
-            var texHud = Globals.Content.Load<Texture2D>("HUD_Display");
+            var texHud      = Globals.Content.Load<Texture2D>("HUD_Display");
             var texElevator = Globals.Content.Load<Texture2D>("Elevator(1)");
-            var texTornado = Globals.Content.Load<Texture2D>("Tornado");
-            var texLemon = Globals.Content.Load<Texture2D>("LemonadeStand");
-            var texItems = Globals.Content.Load<Texture2D>("Items_Transparent");
-            var texFloor = Globals.Content.Load<Texture2D>("floor_path_tiles");
+            var texTornado  = Globals.Content.Load<Texture2D>("Tornado");
+            var texLemon    = Globals.Content.Load<Texture2D>("LemonadeStand");
+            var texItems    = Globals.Content.Load<Texture2D>("Items_Transparent");
+            var texFloor    = Globals.Content.Load<Texture2D>("floor_path_tiles");
 
             //--- Audio ----
             AudioManager.Init(Globals.Content);
             AudioManager.StartBgm();
 
             // Assignment 3: Rotation demo — spinning present (now using Present class)
-            // Using the "fast works" rectangle I used earlier (adjust when map all 28)
             var presentSrc = new Rectangle(2, 6, 25, 18);
-            // Example: ID 5 is "Hi-Tops" so your F3 can later show "present5: Hi-Tops"
             var presentHiTops = new Present(texItems, new Vector2(240, 160), presentSrc, id: 5)
             {
                 Scale = 2f,
@@ -88,13 +89,30 @@ namespace MonoGame
             _world.Add(presentHiTops);
             // end of spinning present  
 
-            // World items 
+            // World items / objects
             _world.Add(new GameObject(texLemon, new Vector2(300, 120), GameRole.NPC,
                                       new Rectangle(8, 8, 67, 60)));
-            _world.Add(new GameObject(texTornado, new Vector2(360, 120), GameRole.Enemy,
-                                      new Rectangle(152, 57, 34, 33)));
+
+            // Drawn tornado sprite (existing visual)
+            var tornadoPos = new Vector2(360, 120);
+            var tornadoSrc = new Rectangle(152, 57, 34, 33); // from your current code
+            _world.Add(new GameObject(texTornado, tornadoPos, GameRole.Enemy, tornadoSrc));
+
+            // NEW: Tornado enemy hitbox (align roughly to drawn sprite; tweak if needed)
+            _tornado = new Enemy("Tornado", position: tornadoPos, size: new Point(tornadoSrc.Width, tornadoSrc.Height))
+            {
+                DamageCooldownSeconds = 0.40f,
+
+                // Try first; adjust while F3 is on:
+                ShrinkX = 4,          // total shrink = 8 px (4 per side)
+                ShrinkY = 6,          // total shrink = 12 px (6 per side)
+                HitboxOffset = new Point(0, -2) // tiny nudge upward if art leans up
+            };
+
+            // Presents in the world
             _world.Add(new Present(texItems, new Vector2(420, 120), new Rectangle(4, 39, 25, 18), id: 1)); // Decoy present
             _world.Add(new Present(texItems, new Vector2(520, 120), new Rectangle(4, 39, 25, 18), id: 1));
+
             // --- Hi-Tops present (static, no spin) ---
             var hiTopsSrc = new Rectangle(2, 6, 25, 18);
             _world.Add(new Present(texItems, new Vector2(640, 220), hiTopsSrc, id: 5) { Scale = 1f });
@@ -130,9 +148,33 @@ namespace MonoGame
         {
             // Always process input so toggles are detected
             InputManager.Update();
-            
+
+            // --- AUDIO: GLOBAL VOLUME KEYS (+ / -) ---
+            if (InputManager.VolumeDownPressed)
+            {
+                AudioManager.NudgeGlobalVolume(-0.1f);
+                Globals.ShowToast($"Vol  SFX:{AudioManager.MasterSfxVolume:0.00}  BGM:{AudioManager.BgmVolume:0.00}", 0.8f);
+            }
+            if (InputManager.VolumeUpPressed)
+            {
+                AudioManager.NudgeGlobalVolume(+0.1f);
+                Globals.ShowToast($"Vol  SFX:{AudioManager.MasterSfxVolume:0.00}  BGM:{AudioManager.BgmVolume:0.00}", 0.8f);
+            }
+
             // Audio update (for chaining)
             AudioManager.Update();
+
+            // Current keyboard state (use once)
+            var kb = Keyboard.GetState();
+
+            // --- REQUIREMENT #2: CHAIN (wakeup -> WAKEUP!) on key 'C' ---
+            bool cNow  = kb.IsKeyDown(Keys.C);
+            bool cPrev = _prevKb.IsKeyDown(Keys.C);
+            if (cNow && !cPrev)
+            {
+                AudioManager.StartChainWakeup();
+                Globals.ShowToast("Chain: wakeup -> WAKEUP!", 0.8f);
+            }
 
             // Update facing with last non-zero move input
             if (InputManager.Moving)
@@ -151,7 +193,6 @@ namespace MonoGame
             // --- DOT/CROSS results (only if we found an enemy) ---
             if (nearestEnemy != null)
             {
-                // DOT: enemy in front? (angle < 90° if dot > 0)
                 _facingEnemy = IsFacingTarget(
                     _toejam.Position,
                     _playerFacing,
@@ -160,7 +201,6 @@ namespace MonoGame
                     0f // minDot=0 -> anything in front; increase to narrow the cone
                 );
 
-                // CROSS: enemy on Right/Left of facing? (Y-down: + = Right, - = Left)
                 _facingSide = SideOfFacing(
                     _toejam.Position,
                     _playerFacing,
@@ -168,7 +208,6 @@ namespace MonoGame
                     out _crossZ
                 );
 
-                // Log only when it meaningfully changes (less spam)
                 bool changedFacing = (_facingEnemy != _prevFacingEnemy) || (System.Math.Abs(_facingDot - _prevDot) > 0.05f);
                 bool changedSide   = (_facingSide != _prevFacingSide)   || (System.Math.Abs(_crossZ   - _prevCross) > 0.05f);
                 if (changedFacing || changedSide)
@@ -214,25 +253,12 @@ namespace MonoGame
             // Toggle inventory with X
             if (InputManager.BPressed) _invOpen = !_invOpen;
 
-            var kb = Keyboard.GetState();
-
             // Debug HUD toggle (F3)
             bool f3Now  = kb.IsKeyDown(Keys.F3);
             bool f3Prev = _prevKb.IsKeyDown(Keys.F3);
             if (f3Now && !f3Prev) _debugHUD = !_debugHUD;
 
-            // --- AUDIO VOLUME KEYS ---
-            if (InputManager.VolumeDownPressed)
-            {
-                AudioManager.NudgeVolume(-0.1f);
-                Globals.ShowToast($"Vol: {AudioManager.SfxVolume:0.00}", 0.8f);
-            }
-            if (InputManager.VolumeUpPressed)
-            {
-                AudioManager.NudgeVolume(+0.1f);
-                Globals.ShowToast($"Vol: {AudioManager.SfxVolume:0.00}", 0.8f);
-            }
-
+            // ---------- Inventory modal (freezes world) ----------
             if (_invOpen)
             {
                 // Move selection (edge on left/right)
@@ -260,6 +286,14 @@ namespace MonoGame
 
             // If paused, freeze sim (draw still runs)
             if (Globals.Paused) return;
+
+            // --------- NEW: Enemy collision → hurt sound (Requirement #1) ---------
+            Rectangle playerBounds = GetPlayerBounds();
+            _tornado?.Update(Globals.TotalSeconds, playerBounds, () =>
+            {
+                AudioManager.PlayHurt();
+                Globals.ShowToast("Ouch!", 0.7f);
+            });
 
             // === Gameplay: Z pressed (outside inventory) ===
             if (InputManager.APressed)
@@ -297,6 +331,32 @@ namespace MonoGame
         {
             var src = o.Source ?? new Rectangle(0, 0, o.Sprite.Width, o.Sprite.Height);
             return new Vector2(src.Width / 2f, src.Height / 2f);
+        }
+
+        // Rough player bounds for collisions; replace with your ToeJam.Bounds if available
+        private Rectangle GetPlayerBounds()
+        {
+        // --- tune here ---
+        const int baseW   = 32;   // rough sprite footprint (width)
+        const int baseH   = 44;   // rough sprite footprint (height)
+        const int shrinkX = 4;    // shrink per side (4 => 8px total narrower)
+        const int shrinkY = 6;    // shrink per side (6 => 12px total shorter)
+        const int offsetX = -2;   // nudge left 2px  (right = +)
+        const int offsetY = -3;   // nudge up   3px  (down  = +)
+        // -------------------
+
+        var r = new Rectangle(
+            (int)_toejam.Position.X,
+            (int)_toejam.Position.Y,
+            baseW,
+            baseH
+        );
+
+        // tighten box, then shift it
+        r.Inflate(-shrinkX, -shrinkY);
+        r.Offset(offsetX, offsetY);
+
+        return r;
         }
 
         // === PRESENT INVENTORY HELPERS ===
@@ -534,7 +594,7 @@ namespace MonoGame
                     (int)System.Math.Floor(pos.X - pad.X),
                     (int)System.Math.Floor(pos.Y - pad.Y),
                     (int)System.Math.Ceiling(size.X + pad.X * 2),
-                    (int)System.Math.Ceiling(size.Y + pad.Y * 2)
+                    (int)(System.Math.Ceiling(size.Y + pad.Y * 2))
                 );
                 Globals.SpriteBatch.Draw(_white, rect, new Color(0, 0, 0, 180));
                 Globals.SpriteBatch.DrawString(_font, ptext, pos, Color.White);
@@ -550,7 +610,8 @@ namespace MonoGame
                 string dbg = $"Facing: {_facingEnemy}\n" +
                              $"dot: {_facingDot:0.00}\n" +
                              $"side: {SideLabel(_facingSide)} (crossZ: {_crossZ:0.00})\n" +
-                             itemLine;
+                             itemLine +
+                             $"\nVol SFX:{AudioManager.MasterSfxVolume:0.00}  BGM:{AudioManager.BgmVolume:0.00}";
 
                 var pos  = new Vector2(12, 12); // top-left corner
                 var size = _font.MeasureString(dbg);
@@ -558,6 +619,11 @@ namespace MonoGame
                                          (int)(size.X + 16), (int)(size.Y + 12));
                 Globals.SpriteBatch.Draw(_white, rect, new Color(0,0,0,160));
                 Globals.SpriteBatch.DrawString(_font, dbg, pos, Color.White);
+
+                // Show player bounds (green) and tornado hitbox (red) to tune visually
+                var pb = GetPlayerBounds();
+                Globals.SpriteBatch.Draw(_white, pb, new Color(0, 255, 0, 80));
+                _tornado?.DrawDebug(Globals.SpriteBatch);
             }
         }
     }

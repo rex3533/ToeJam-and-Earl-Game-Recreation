@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <SourceFile>c:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Hurt_ToeJam.wav</SourceFile>
+  <SourceTime>2025-10-20T23:25:59.5267632-05:00</SourceTime>
+  <DestFile>c:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/bin/DesktopGL/Hurt_ToeJam.xnb</DestFile>
+  <DestTime>2025-10-20T23:33:30.313706-05:00</DestTime>
+  <Importer>WavImporter</Importer>
+  <ImporterTime>2025-06-02T05:31:02-05:00</ImporterTime>
+  <Processor>SoundEffectProcessor</Processor>
+  <ProcessorTime>2025-06-02T05:31:02-05:00</ProcessorTime>
+  <Parameters>
+    <Key>Quality</Key>
+    <Value>Best</Value>
+  </Parameters>
+  <Dependencies />
+  <BuildAsset />
+  <BuildOutput />
+</PipelineBuildEvent>

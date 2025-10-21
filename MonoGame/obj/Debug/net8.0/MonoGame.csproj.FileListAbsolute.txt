@@ -200,3 +200,7 @@ C:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreati
 C:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\obj\Debug\net8.0\ref\MonoGame.dll
 C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\BGMToeJam.ogg
 C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\BGMToeJam.xnb
+C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\Sparkles.xnb
+C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\Hurt_ToeJam.xnb
+C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\WakeUp.xnb
+C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\WakeUp_Shout.xnb

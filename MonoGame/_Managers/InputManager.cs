@@ -61,17 +61,21 @@ namespace MonoGame
             bool bPrev = _prevKb.IsKeyDown(KeyB);
             BPressed = bNow && !bPrev;
 
-            _prevKb = kb;
+           VolumeUpPressed = false;
+           VolumeDownPressed = false;
 
-            // === Volume up/down (+ and -) handling ===
-            // Volume keys: OemPlus ('= / +' key) or Numpad Add; OemMinus ('-' key) or Numpad Subtract
+            // Treat BOTH the main keyboard and numpad
             bool plusNow  = kb.IsKeyDown(Keys.OemPlus)  || kb.IsKeyDown(Keys.Add);
             bool plusPrev = _prevKb.IsKeyDown(Keys.OemPlus) || _prevKb.IsKeyDown(Keys.Add);
-            VolumeUpPressed = plusNow && !plusPrev;
+            if (plusNow && !plusPrev) VolumeUpPressed = true;
 
             bool minusNow  = kb.IsKeyDown(Keys.OemMinus) || kb.IsKeyDown(Keys.Subtract);
             bool minusPrev = _prevKb.IsKeyDown(Keys.OemMinus) || _prevKb.IsKeyDown(Keys.Subtract);
-            VolumeDownPressed = minusNow && !minusPrev;
+            if (minusNow && !minusPrev) VolumeDownPressed = true;
+
+            //DO THIS LAST
+            _prevKb = kb;
+
 
         }
     }

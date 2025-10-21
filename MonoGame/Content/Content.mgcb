@@ -55,6 +55,12 @@
 /processorParam:TextureFormat=Color
 /build:HUD_Display.png
 
+#begin Hurt_ToeJam.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Hurt_ToeJam.wav
+
 #begin Items_Transparent.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -115,4 +121,16 @@
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:UIFont.spritefont
+
+#begin WAKEUP!.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:WAKEUP!.wav;WakeUp_Shout.wav
+
+#begin WakeUp.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:WakeUp.wav
 
