@@ -63,17 +63,7 @@ namespace MonoGame
 
         // ----------------- Required demos -----------------
 
-        // #1 (example): play a sound off an event (e.g., button/menu) *not used
-        public static void PlayClick()
-        {
-            if (_sfxClick == null) return;
-            _active = _sfxClick.CreateInstance();
-            _active.Volume = 0.9f;
-            _active.Pitch  = 0f;
-            _active.Play();
-        }
-
-        // Event sound for “hurt” (ToeJam colliding with enemy)
+        //Event sound for “hurt” (ToeJam colliding with enemy)
         public static void PlayHurt()
         {
             if (_sfxHurt == null) return;
@@ -82,7 +72,7 @@ namespace MonoGame
             inst.Play();
         }
 
-        // Another simple event SFX (pickup)
+        // Another simple event SFX (pickup) *not used yet*
         public static void PlayPickup()
         {
             if (_sfxPickup == null) return;

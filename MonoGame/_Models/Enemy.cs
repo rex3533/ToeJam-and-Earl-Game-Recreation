@@ -54,7 +54,7 @@ namespace MonoGame
             return false;
         }
 
-        // Optional: visualize hitbox (semi-transparent red)
+        // Visualize hitbox (semi-transparent red)
         private static Texture2D _pixel;
         public void DrawDebug(SpriteBatch spriteBatch)
         {

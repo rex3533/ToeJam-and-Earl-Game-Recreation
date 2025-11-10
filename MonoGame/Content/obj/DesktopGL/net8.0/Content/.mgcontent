@@ -11,6 +11,7 @@
     <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Hurt_ToeJam.wav</File>
     <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Items_Transparent.png</File>
     <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/LemonadeStand.png</File>
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Lil_Devil.png</File>
     <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Sparkles.wav</File>
     <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/ToeJam_Transparent.png</File>
     <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Tornado.png</File>
@@ -19,6 +20,7 @@
     <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/WakeUp.wav</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

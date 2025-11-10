@@ -51,8 +51,9 @@ namespace MonoGame
         // Debug HUD toggle (F3)
         private bool _debugHUD = false;
 
-        // --- NEW: a simple enemy hitbox (tornado) ---
+        // --- Enemies with hitboxs (rectangle and circle) ---
         private Enemy _tornado;
+        private LilDevil _lilDevil;       // circle-hitbox enemy
 
         public void Init(GraphicsDevice gd)
         {
@@ -70,7 +71,8 @@ namespace MonoGame
             // ---- textures (adjust asset names if needed) ----
             var texHud      = Globals.Content.Load<Texture2D>("HUD_Display");
             var texElevator = Globals.Content.Load<Texture2D>("Elevator(1)");
-            var texTornado  = Globals.Content.Load<Texture2D>("Tornado");
+            var texTornado = Globals.Content.Load<Texture2D>("Tornado");
+            var texLilDevil = Globals.Content.Load<Texture2D>("Lil_Devil");
             var texLemon    = Globals.Content.Load<Texture2D>("LemonadeStand");
             var texItems    = Globals.Content.Load<Texture2D>("Items_Transparent");
             var texFloor    = Globals.Content.Load<Texture2D>("floor_path_tiles");
@@ -108,6 +110,15 @@ namespace MonoGame
                 ShrinkY = 6,          // total shrink = 12 px (6 per side)
                 HitboxOffset = new Point(0, -2) // tiny nudge upward if art leans up
             };
+
+            // Lil Devil: animated enemy with a CIRCLE hitbox
+            _lilDevil = new LilDevil(texLilDevil, new Vector2(720, 120))
+            {
+                Radius = 14f,                  // adjust for tighter/looser circle
+                DamageCooldownSeconds = 0.40f,
+                CircleOffset = new Vector2(0, 0)
+            };
+
 
             // Presents in the world
             _world.Add(new Present(texItems, new Vector2(420, 120), new Rectangle(4, 39, 25, 18), id: 1)); // Decoy present
@@ -309,6 +320,21 @@ namespace MonoGame
                 }
             }
 
+             // Animate Lil Devil
+            _lilDevil?.Update();
+
+            // Circle collision -> hurt response (2nd primitive shape)
+            _lilDevil?.UpdateCollision(
+                Globals.TotalSeconds,
+                GetPlayerBounds(),
+                () =>
+                {
+                    AudioManager.PlayHurt();
+                    Globals.ShowToast("Ouch! Lil Devil!", 0.7f);
+                }
+            );
+   
+
             // Tick active power timers
             if (_activePower != null)
             {
@@ -506,6 +532,9 @@ namespace MonoGame
             // World objects
             foreach (var o in _world) if (o.Role != GameRole.Tile && o.Role != GameRole.UI) o.Draw();
 
+            // Lil Devil (circle enemy)
+            _lilDevil?.Draw();
+
             // Player
             _toejam.Draw();
 
@@ -624,6 +653,7 @@ namespace MonoGame
                 var pb = GetPlayerBounds();
                 Globals.SpriteBatch.Draw(_white, pb, new Color(0, 255, 0, 80));
                 _tornado?.DrawDebug(Globals.SpriteBatch);
+                _lilDevil?.DrawDebugCircle(Globals.SpriteBatch);
             }
         }
     }
