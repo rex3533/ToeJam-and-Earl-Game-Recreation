@@ -7,6 +7,8 @@ namespace MonoGame
 {
     public class GameManager
     {
+        // --- Player + world ---
+        private PlayerActions _actions;
         private ToeJam _toejam;
         private readonly List<GameObject> _world = new();
 
@@ -20,7 +22,7 @@ namespace MonoGame
         private KeyboardState _prevKb = Keyboard.GetState();
 
         // === PRESENT INVENTORY ===
-        // Each entry tracks a present type (id 1..28), count, and shows ??? until identified.
+        // Each entry tracks a present type (id 1..28), count.
         private readonly List<(int id, int count)> _presentInv = new();
 
         // Equipped + active timed power (kept from before for Hi-Tops etc.)
@@ -51,7 +53,7 @@ namespace MonoGame
         // Debug HUD toggle (F3)
         private bool _debugHUD = false;
 
-        // --- Enemies with hitboxs (rectangle and circle) ---
+        // --- Enemies with hitboxes (rectangle and circle) ---
         private Enemy _tornado;
         private LilDevil _lilDevil;       // circle-hitbox enemy
 
@@ -60,6 +62,9 @@ namespace MonoGame
             // Player
             var toeJamTexture = Globals.Content.Load<Texture2D>("ToeJam_Transparent");
             _toejam = new ToeJam(0, toeJamTexture);
+
+            // Actions router (sneak/fire/charge)
+            _actions = new PlayerActions();
 
             // 1x1 white
             _white = new Texture2D(gd, 1, 1);
@@ -71,7 +76,7 @@ namespace MonoGame
             // ---- textures (adjust asset names if needed) ----
             var texHud      = Globals.Content.Load<Texture2D>("HUD_Display");
             var texElevator = Globals.Content.Load<Texture2D>("Elevator(1)");
-            var texTornado = Globals.Content.Load<Texture2D>("Tornado");
+            var texTornado  = Globals.Content.Load<Texture2D>("Tornado");
             var texLilDevil = Globals.Content.Load<Texture2D>("Lil_Devil");
             var texLemon    = Globals.Content.Load<Texture2D>("LemonadeStand");
             var texItems    = Globals.Content.Load<Texture2D>("Items_Transparent");
@@ -89,7 +94,7 @@ namespace MonoGame
                 AngularVelocity = 3.0f // only THIS one spins
             };
             _world.Add(presentHiTops);
-            // end of spinning present  
+            // end of spinning present
 
             // World items / objects
             _world.Add(new GameObject(texLemon, new Vector2(300, 120), GameRole.NPC,
@@ -111,14 +116,13 @@ namespace MonoGame
                 HitboxOffset = new Point(0, -2) // tiny nudge upward if art leans up
             };
 
-            // Lil Devil: animated enemy with a CIRCLE hitbox
+            // Lil Devil: animated enemy with a CIRCLE hitbox (FSM is in LilDevil.cs)
             _lilDevil = new LilDevil(texLilDevil, new Vector2(720, 120))
             {
                 Radius = 14f,                  // adjust for tighter/looser circle
                 DamageCooldownSeconds = 0.40f,
                 CircleOffset = new Vector2(0, 0)
             };
-
 
             // Presents in the world
             _world.Add(new Present(texItems, new Vector2(420, 120), new Rectangle(4, 39, 25, 18), id: 1)); // Decoy present
@@ -159,6 +163,10 @@ namespace MonoGame
         {
             // Always process input so toggles are detected
             InputManager.Update();
+
+            // Update action router early (so everyone can read it this frame)
+            _actions.Update(Globals.TotalSeconds); // dt this frame
+            _toejam.SetSneak(_actions.IsSneaking);
 
             // --- AUDIO: GLOBAL VOLUME KEYS (+ / -) ---
             if (InputManager.VolumeDownPressed)
@@ -289,16 +297,18 @@ namespace MonoGame
                     UseSelectedPresent();
                 }
 
-                _prevKb = kb;
-                return; // freeze world while inventory is open
+                _prevKb = kb; // edge tracking inside modal
+                return;       // freeze world while inventory is open
             }
 
-            _prevKb = kb;
-
             // If paused, freeze sim (draw still runs)
-            if (Globals.Paused) return;
+            if (Globals.Paused)
+            {
+                _prevKb = kb; // keep edges sane while paused
+                return;
+            }
 
-            // --------- NEW: Enemy collision → hurt sound (Requirement #1) ---------
+            // --------- Enemy collision → hurt sound (Requirement #1) ---------
             Rectangle playerBounds = GetPlayerBounds();
             _tornado?.Update(Globals.TotalSeconds, playerBounds, () =>
             {
@@ -307,23 +317,39 @@ namespace MonoGame
             });
 
             // === Gameplay: Z pressed (outside inventory) ===
-            if (InputManager.APressed)
+            if (InputManager.APressed && !string.IsNullOrEmpty(_equipped))
             {
-                if (!string.IsNullOrEmpty(_equipped))
-                {
-                    UseEquipped(); // legacy path (kept if you want it)
-                }
-                else
-                {
-                    // No item equipped: Z toggles sneak
-                    _toejam.ToggleSneak();
-                }
+                UseEquipped();
             }
 
-             // Animate Lil Devil
-            _lilDevil?.Update();
+            // === Actions demo mode switches (avoid F3 since it's HUD) ===
+           bool f4Now = kb.IsKeyDown(Keys.F4), f4Prev = _prevKb.IsKeyDown(Keys.F4);
+           bool f5Now = kb.IsKeyDown(Keys.F5), f5Prev = _prevKb.IsKeyDown(Keys.F5);
+           bool f6Now = kb.IsKeyDown(Keys.F6), f6Prev = _prevKb.IsKeyDown(Keys.F6);
 
-            // Circle collision -> hurt response (2nd primitive shape)
+            if (f4Now && !f4Prev) { _actions.SetMode(ActionModeKind.Default);    Globals.ShowToast("Mode: Default (Sneak)", 0.7f); }
+            if (f5Now && !f5Prev) { _actions.SetMode(ActionModeKind.PressFire);  Globals.ShowToast("Mode: Press/Fire", 0.7f); }
+            if (f6Now && !f6Prev) { _actions.SetMode(ActionModeKind.HoldCharge); Globals.ShowToast("Mode: Hold/Charge", 0.7f); }
+
+
+            // Example pulses (hook up when projectiles/jump exist)
+            if (_actions.FireJustPressed)
+            {
+                // AudioManager.PlayShoot();
+                Globals.ShowToast("Fire!", 0.5f);
+            }
+            if (_actions.ChargeReleased)
+            {
+                float power = _actions.Charge01;   // 0..1
+                Globals.ShowToast($"Charged jump: {power:0.00}", 0.8f);
+                // TODO: apply vertical velocity to ToeJam based on 'power'
+            }
+
+            // --- Lil Devil: animate + AI + collision ---
+            _lilDevil?.Update();
+            _lilDevil?.UpdateAI(_toejam.Position, _actions.IsSneaking);
+
+            // Collision (disabled when Dead inside LilDevil)
             _lilDevil?.UpdateCollision(
                 Globals.TotalSeconds,
                 GetPlayerBounds(),
@@ -333,7 +359,17 @@ namespace MonoGame
                     Globals.ShowToast("Ouch! Lil Devil!", 0.7f);
                 }
             );
-   
+
+            // === DEBUG ===
+            bool kNow = kb.IsKeyDown(Keys.K), kPrev = _prevKb.IsKeyDown(Keys.K);
+            if (kNow && !kPrev && _lilDevil != null) { _lilDevil.Kill(); Globals.ShowToast("Lil Devil: DEAD", 0.7f); }
+
+            bool rNow = kb.IsKeyDown(Keys.R), rPrev = _prevKb.IsKeyDown(Keys.R);
+            if (rNow && !rPrev && _lilDevil != null) { _lilDevil.Respawn(); Globals.ShowToast("Lil Devil: respawn", 0.6f); }
+
+            // NEW: J toggles sleep/awake for demo
+            bool jNow = kb.IsKeyDown(Keys.J), jPrev = _prevKb.IsKeyDown(Keys.J);
+            if (jNow && !jPrev && _lilDevil != null) _lilDevil.DebugToggleSleep();
 
             // Tick active power timers
             if (_activePower != null)
@@ -350,6 +386,9 @@ namespace MonoGame
             // Remove expired objects (e.g., decoy, picked-up presents)
             for (int i = _world.Count - 1; i >= 0; i--)
                 if (!_world[i].Alive) _world.RemoveAt(i);
+
+            // --- Update edge-trigger snapshot LAST ---
+            _prevKb = kb;
         }
 
         // Helper: center offset from Source or Texture
@@ -362,27 +401,27 @@ namespace MonoGame
         // Rough player bounds for collisions; replace with your ToeJam.Bounds if available
         private Rectangle GetPlayerBounds()
         {
-        // --- tune here ---
-        const int baseW   = 32;   // rough sprite footprint (width)
-        const int baseH   = 44;   // rough sprite footprint (height)
-        const int shrinkX = 4;    // shrink per side (4 => 8px total narrower)
-        const int shrinkY = 6;    // shrink per side (6 => 12px total shorter)
-        const int offsetX = -2;   // nudge left 2px  (right = +)
-        const int offsetY = -3;   // nudge up   3px  (down  = +)
-        // -------------------
+            // --- tune here ---
+            const int baseW   = 32;   // rough sprite footprint (width)
+            const int baseH   = 44;   // rough sprite footprint (height)
+            const int shrinkX = 4;    // shrink per side (4 => 8px total narrower)
+            const int shrinkY = 6;    // shrink per side (6 => 12px total shorter)
+            const int offsetX = -2;   // nudge left 2px  (right = +)
+            const int offsetY = -3;   // nudge up   3px  (down  = +)
+            // -------------------
 
-        var r = new Rectangle(
-            (int)_toejam.Position.X,
-            (int)_toejam.Position.Y,
-            baseW,
-            baseH
-        );
+            var r = new Rectangle(
+                (int)_toejam.Position.X,
+                (int)_toejam.Position.Y,
+                baseW,
+                baseH
+            );
 
-        // tighten box, then shift it
-        r.Inflate(-shrinkX, -shrinkY);
-        r.Offset(offsetX, offsetY);
+            // tighten box, then shift it
+            r.Inflate(-shrinkX, -shrinkY);
+            r.Offset(offsetX, offsetY);
 
-        return r;
+            return r;
         }
 
         // === PRESENT INVENTORY HELPERS ===
@@ -417,13 +456,13 @@ namespace MonoGame
                     break;
 
                 case "Decoy":
-                    {
-                        // Spawn the decoy at player position (your existing Powerup)
-                        var decoy = Powerup.CreateDecoy(_toejam.Texture, _toejam.Position, lifeSeconds: 6f);
-                        decoy.Scale = _toejam.Scale;
-                        _world.Add(decoy);
-                        break;
-                    }
+                {
+                    // Spawn the decoy at player position (your existing Powerup)
+                    var decoy = Powerup.CreateDecoy(_toejam.Texture, _toejam.Position, lifeSeconds: 6f);
+                    decoy.Scale = _toejam.Scale;
+                    _world.Add(decoy);
+                    break;
+                }
 
                 case "Big Bucks":
                     _bigBucks += 25; // placeholder amount
@@ -640,7 +679,9 @@ namespace MonoGame
                              $"dot: {_facingDot:0.00}\n" +
                              $"side: {SideLabel(_facingSide)} (crossZ: {_crossZ:0.00})\n" +
                              itemLine +
-                             $"\nVol SFX:{AudioManager.MasterSfxVolume:0.00}  BGM:{AudioManager.BgmVolume:0.00}";
+                             $"\nVol SFX:{AudioManager.MasterSfxVolume:0.00}  BGM:{AudioManager.BgmVolume:0.00}" +
+                             $"\nMode={_actions.Mode} Sneak={_actions.IsSneaking}" +
+                             $"\nLil Devil: state={_lilDevil?.StateLabel ?? "n/a"}";
 
                 var pos  = new Vector2(12, 12); // top-left corner
                 var size = _font.MeasureString(dbg);
@@ -653,7 +694,11 @@ namespace MonoGame
                 var pb = GetPlayerBounds();
                 Globals.SpriteBatch.Draw(_white, pb, new Color(0, 255, 0, 80));
                 _tornado?.DrawDebug(Globals.SpriteBatch);
-                _lilDevil?.DrawDebugCircle(Globals.SpriteBatch);
+
+                // Vision/wake/hit rings so graders can see the behavior
+                _lilDevil?.DrawDebugWake(Globals.SpriteBatch, _actions.IsSneaking);
+                _lilDevil?.DrawDebugVision(Globals.SpriteBatch);
+                _lilDevil?.DrawDebugCircle(Globals.SpriteBatch); // red hitbox ring
             }
         }
     }

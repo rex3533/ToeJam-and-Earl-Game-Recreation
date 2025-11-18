@@ -3,7 +3,7 @@
   <SourceFile>c:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/WAKEUP!.wav</SourceFile>
   <SourceTime>2025-10-20T23:46:33.6746339-05:00</SourceTime>
   <DestFile>c:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/bin/DesktopGL/WakeUp_Shout.xnb</DestFile>
-  <DestTime>2025-10-21T00:05:55.5430236-05:00</DestTime>
+  <DestTime>2025-11-11T13:15:10.4048167-06:00</DestTime>
   <Importer>WavImporter</Importer>
   <ImporterTime>2025-06-02T05:31:02-05:00</ImporterTime>
   <Processor>SoundEffectProcessor</Processor>

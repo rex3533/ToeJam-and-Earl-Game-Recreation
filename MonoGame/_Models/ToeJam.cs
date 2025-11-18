@@ -17,7 +17,7 @@ namespace MonoGame
         private bool _hasSneakAnims = false; // becomes true once we fill rectangles
 
         // Drawing scale (1 for original size)
-        public float Scale { get; set; } = 1.0f;
+        public float Scale { get; set; } = 1.5f;
         // Sneaking state + speed factor
         private bool _sneaking;
         private const float SneakFactor = 0.45f;
@@ -163,6 +163,8 @@ namespace MonoGame
 
         // Called by GameManager when Z should toggle sneaking (only if nothing equipped)
         public void ToggleSneak() => _sneaking = !_sneaking;
+        public void SetSneak(bool on) { _sneaking = on; }
+
 
         public void Update()
         {

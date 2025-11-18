@@ -10,7 +10,7 @@ public class GameObject
     public Rectangle? Source;      // optional sprite-sheet crop
     public Vector2 Position;
     public Color Tint = Color.White;
-    public float Scale = 1f;       // uniform scale if Size is not used
+    public float Scale = 1.0f;       // uniform scale if Size is not used (was 1)
     public Point? Size;            // if set, draws into this destination size
     public GameRole Role;
 
