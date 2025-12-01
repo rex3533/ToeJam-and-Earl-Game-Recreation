@@ -13,6 +13,8 @@ namespace MonoGame
         private static SoundEffect _sfxWakeup1;      // quiet "wakeup"
         private static SoundEffect _sfxWakeup2;      // loud  "WAKEUP!"
         private static Song _bgm;
+        private static SoundEffect _sfxTomatoLaunch;
+        private static SoundEffect _sfxSmoosh;
 
         // Active instance for instance-level controls (volume/pitch/pause)
         private static SoundEffectInstance _active;
@@ -39,7 +41,10 @@ namespace MonoGame
             _sfxClick   = TryLoad<SoundEffect>(content, "sfx_click");
             _sfxPickup  = TryLoad<SoundEffect>(content, "sfx_pickup");
             _sfxA       = TryLoad<SoundEffect>(content, "sfx_a");
-            _sfxB       = TryLoad<SoundEffect>(content, "sfx_b");
+            _sfxB = TryLoad<SoundEffect>(content, "sfx_b");
+            _sfxTomatoLaunch = content.Load<SoundEffect>("TomatoLaunch"); // TomatoLaunch.wav in the MGCB
+            _sfxSmoosh       = content.Load<SoundEffect>("Smoosh");       // Smoosh.wav in the MGCB
+
 
             // New SFX for Assignment 4 demos
             _sfxHurt    = TryLoad<SoundEffect>(content, "Hurt_ToeJam") ?? TryLoad<SoundEffect>(content, "hurt_toejam");
@@ -104,13 +109,32 @@ namespace MonoGame
             _chainA = _sfxWakeup1.CreateInstance();
             _chainB = _sfxWakeup2.CreateInstance();
             _chainRequested = true;
-            _chainBStarted  = false;
+            _chainBStarted = false;
 
             _active = _chainA;
             _active.Volume = 0.9f;
-            _active.Pitch  = 0f;
+            _active.Pitch = 0f;
             _chainA.Play();
         }
+        
+        public static void PlayTomatoLaunch(float volume = 1f, float pitch = 0f)
+        {
+            _sfxTomatoLaunch?.Play(
+                MathHelper.Clamp(MasterSfxVolume * volume, 0f, 1f),
+                pitch,
+                0f
+            );
+        }
+
+        public static void PlaySmoosh(float volume = 1f)
+        {
+            _sfxSmoosh?.Play(
+                MathHelper.Clamp(MasterSfxVolume * volume, 0f, 1f),
+                0f,
+                0f
+            );
+        }
+
 
         public static void Update()
         {

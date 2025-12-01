@@ -436,5 +436,46 @@ namespace MonoGame
             // set pacing per state
             _frameTime = (_anim == AnimSet.Sleep || _anim == AnimSet.AwakeIdle) ? IdleFrameTime : MoveFrameTime;
         }
+
+        // === Projectile hit ===
+        public bool TryHit(Vector2 projPos, float projRadius, int damage)
+        {
+            if (State == DevilState.Dead) return false;  // <-- use state, not Alive
+
+            float r = Radius + projRadius;
+            var center = CircleCenter;
+            float dx = projPos.X - center.X;
+            float dy = projPos.Y - center.Y;
+            if (dx*dx + dy*dy <= r * r)
+            {
+                Kill(); // 1-hit for Lil Devil (disappear)
+                return true;
+            }
+            return false;
+        }
+
+        public bool IsDead => State == DevilState.Dead;   // <-- derive from state
+
+        public void Kill(bool disappear = true)
+        {
+            if (State == DevilState.Dead) return;
+
+            State = DevilState.Dead;
+            _vel = Vector2.Zero;
+
+            if (disappear)
+            {
+                // Assignment choice (i): disappears and is removed
+                Alive = false;
+            }
+            else
+            {
+                // Assignment choice (ii): render but cannot act - current one being used
+                Alive = true;
+                Tint = new Color(170, 170, 170, 200); // “corpse” look
+            }
+        }
+
+
     }
 }

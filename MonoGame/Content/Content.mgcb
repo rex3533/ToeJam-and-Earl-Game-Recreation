@@ -97,6 +97,12 @@
 /processorParam:TextureFormat=Color
 /build:Lil_Devil.png
 
+#begin Smoosh.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Smoosh.wav
+
 #begin Sparkles.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -114,6 +120,12 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:ToeJam_Transparent.png
+
+#begin TomatoLaunch.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:TomatoLaunch.wav
 
 #begin Tornado.png
 /importer:TextureImporter

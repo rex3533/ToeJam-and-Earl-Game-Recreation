@@ -205,3 +205,5 @@ C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\ne
 C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\WakeUp.xnb
 C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\WakeUp_Shout.xnb
 C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\Lil_Devil.xnb
+C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\Smoosh.xnb
+C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\TomatoLaunch.xnb
