@@ -20,6 +20,17 @@ public static class Globals
     public static string MenuToastText { get; private set; } = "";
     public static float MenuToastTimer { get; private set; } = 0f; // seconds
 
+    public static float TimeScale { get; private set; } = 1f;   // 1 = normal speed
+    public static float UnscaledSeconds { get; private set; }   // raw dt (unscaled)
+
+    public static void SetTimeScale(float value)
+    {
+        // clamp to something sane; allow 0 for full pause if you want
+        TimeScale = MathHelper.Clamp(value, 0f, 4f);
+    }
+    public static void NudgeTimeScale(float delta) => SetTimeScale(TimeScale + delta);
+
+
     public static void ToggleMenu()
     {
         MenuOpen = !MenuOpen;
@@ -37,13 +48,16 @@ public static class Globals
     }
     public static void Update(GameTime gt)
     {
-        TotalSeconds = (float)gt.ElapsedGameTime.TotalSeconds;
+    var rawDt = (float)gt.ElapsedGameTime.TotalSeconds;
+    UnscaledSeconds = rawDt;
+    TotalSeconds    = rawDt * TimeScale;
 
-        // countdown the toast timer
-        if (MenuToastTimer > 0f)
-        {
-            MenuToastTimer -= TotalSeconds;
-            if (MenuToastTimer < 0f) MenuToastTimer = 0f;
-        }
+    // countdown the toast timer (scaled so it slows during slow-mo)
+    if (MenuToastTimer > 0f)
+    {
+        MenuToastTimer -= TotalSeconds;
+        if (MenuToastTimer < 0f) MenuToastTimer = 0f;
     }
+    }
+
 }

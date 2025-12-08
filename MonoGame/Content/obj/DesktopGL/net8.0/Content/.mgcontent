@@ -4,6 +4,7 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
+<<<<<<< HEAD
     <File>C:/Users/maski/OneDrive/Documents/Game Programming/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Elevator(1).png</File>
     <File>C:/Users/maski/OneDrive/Documents/Game Programming/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/floor_path_tiles.png</File>
     <File>C:/Users/maski/OneDrive/Documents/Game Programming/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/HUD_Display.png</File>
@@ -12,6 +13,24 @@
     <File>C:/Users/maski/OneDrive/Documents/Game Programming/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/ToeJam_Transparent.png</File>
     <File>C:/Users/maski/OneDrive/Documents/Game Programming/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Tornado.png</File>
     <File>C:/Users/maski/OneDrive/Documents/Game Programming/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/UIFont.spritefont</File>
+=======
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/BGMToeJam.wav</File>
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Elevator(1).png</File>
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/floor_path_tiles.png</File>
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/HUD_Display.png</File>
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Hurt_ToeJam.wav</File>
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Items_Transparent.png</File>
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/LemonadeStand.png</File>
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Lil_Devil.png</File>
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Smoosh.wav</File>
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Sparkles.wav</File>
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/ToeJam_Transparent.png</File>
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/TomatoLaunch.wav</File>
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/Tornado.png</File>
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/UIFont.spritefont</File>
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/WAKEUP!.wav</File>
+    <File>C:/Users/maski/Game Design/ToeJam-and-Earl-Game-Recreation/MonoGame/Content/WakeUp.wav</File>
+>>>>>>> 5cce9b616d4f7980b3785c44280cad71e02d5531
   </SourceFiles>
   <DestFiles>
     <File xsi:nil="true" />
@@ -21,6 +40,14 @@
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File>WakeUp_Shout.wav</File>
     <File xsi:nil="true" />
   </DestFiles>
 </SourceFileCollection>

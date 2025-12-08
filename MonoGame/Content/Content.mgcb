@@ -13,6 +13,12 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin BGMToeJam.wav
+/importer:WavImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:BGMToeJam.wav
+
 #begin Elevator(1).png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -49,6 +55,12 @@
 /processorParam:TextureFormat=Color
 /build:HUD_Display.png
 
+#begin Hurt_ToeJam.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Hurt_ToeJam.wav
+
 #begin Items_Transparent.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -73,6 +85,30 @@
 /processorParam:TextureFormat=Color
 /build:LemonadeStand.png
 
+#begin Lil_Devil.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Lil_Devil.png
+
+#begin Smoosh.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Smoosh.wav
+
+#begin Sparkles.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sparkles.wav
+
 #begin ToeJam_Transparent.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -84,6 +120,12 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:ToeJam_Transparent.png
+
+#begin TomatoLaunch.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:TomatoLaunch.wav
 
 #begin Tornado.png
 /importer:TextureImporter
@@ -103,4 +145,16 @@
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:UIFont.spritefont
+
+#begin WAKEUP!.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:WAKEUP!.wav;WakeUp_Shout.wav
+
+#begin WakeUp.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:WakeUp.wav
 

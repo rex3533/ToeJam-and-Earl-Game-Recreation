@@ -71,7 +71,7 @@ namespace MonoGame
             }
         }
 
-        // ---- Convenience factory for Decoy using your sheet positions (27x42) ----
+        // ---- Convenience factory for Decoy ----
         public static Powerup CreateDecoy(Texture2D tex, Vector2 pos, float lifeSeconds = 6f)
         {
             const int W = 27, H = 42;
