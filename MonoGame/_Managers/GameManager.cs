@@ -10,6 +10,7 @@ namespace MonoGame
         // ---- Screens ----
         private enum GameScreen { MainMenu, Playing }
         private GameScreen _screen = GameScreen.MainMenu;
+        public bool InMainMenu => _screen == GameScreen.MainMenu;
 
         // Main menu UI
         private Rectangle _btnPlayRect;
@@ -87,13 +88,13 @@ namespace MonoGame
             _font = Globals.Content.Load<SpriteFont>("UIFont");
 
             // ---- textures ----
-            var texHud     = Globals.Content.Load<Texture2D>("HUD_Display");
-            var texElevator= Globals.Content.Load<Texture2D>("Elevator(1)");
+            var texHud = Globals.Content.Load<Texture2D>("HUD_Display");
+            var texElevator = Globals.Content.Load<Texture2D>("Elevator(1)");
             var texTornado = Globals.Content.Load<Texture2D>("Tornado");
-            var texLilDevil= Globals.Content.Load<Texture2D>("Lil_Devil");
-            var texLemon   = Globals.Content.Load<Texture2D>("LemonadeStand");
-            var texItems   = Globals.Content.Load<Texture2D>("Items_Transparent");
-            var texFloor   = Globals.Content.Load<Texture2D>("floor_path_tiles");
+            var texLilDevil = Globals.Content.Load<Texture2D>("Lil_Devil");
+            var texLemon = Globals.Content.Load<Texture2D>("LemonadeStand");
+            var texItems = Globals.Content.Load<Texture2D>("Items_Transparent");
+            var texFloor = Globals.Content.Load<Texture2D>("floor_path_tiles");
 
             // --- Audio ---
             AudioManager.Init(Globals.Content);
@@ -298,15 +299,15 @@ namespace MonoGame
             if (nearestEnemy != null)
             {
                 _facingEnemy = IsFacingTarget(_toejam.Position, _playerFacing, nearestEnemy.Position, out _facingDot, 0f);
-                _facingSide  = SideOfFacing(_toejam.Position, _playerFacing, nearestEnemy.Position, out _crossZ);
+                _facingSide = SideOfFacing(_toejam.Position, _playerFacing, nearestEnemy.Position, out _crossZ);
 
                 bool changedFacing = (_facingEnemy != _prevFacingEnemy) || (System.Math.Abs(_facingDot - _prevDot) > 0.05f);
-                bool changedSide   = (_facingSide  != _prevFacingSide)  || (System.Math.Abs(_crossZ - _prevCross) > 0.05f);
+                bool changedSide = (_facingSide != _prevFacingSide) || (System.Math.Abs(_crossZ - _prevCross) > 0.05f);
                 if (changedFacing || changedSide)
                 {
                     System.Diagnostics.Debug.WriteLine($"Facing={_facingEnemy} dot={_facingDot:0.00} side={SideLabel(_facingSide)} crossZ={_crossZ:0.00}");
                     _prevFacingEnemy = _facingEnemy; _prevDot = _facingDot;
-                    _prevFacingSide  = _facingSide;  _prevCross = _crossZ;
+                    _prevFacingSide = _facingSide; _prevCross = _crossZ;
                 }
             }
             else { _facingEnemy = false; _facingDot = 0f; _facingSide = 0; _crossZ = 0f; }
@@ -338,9 +339,9 @@ namespace MonoGame
             // Inventory modal (freeze world)
             if (_invOpen)
             {
-                bool leftNow = kb.IsKeyDown(Keys.Left),  leftPrev  = _prevKb.IsKeyDown(Keys.Left);
-                bool rightNow= kb.IsKeyDown(Keys.Right), rightPrev = _prevKb.IsKeyDown(Keys.Right);
-                if (leftNow && !leftPrev && _presentInv.Count > 0)  _invIndex = (_invIndex - 1 + _presentInv.Count) % _presentInv.Count;
+                bool leftNow = kb.IsKeyDown(Keys.Left), leftPrev = _prevKb.IsKeyDown(Keys.Left);
+                bool rightNow = kb.IsKeyDown(Keys.Right), rightPrev = _prevKb.IsKeyDown(Keys.Right);
+                if (leftNow && !leftPrev && _presentInv.Count > 0) _invIndex = (_invIndex - 1 + _presentInv.Count) % _presentInv.Count;
                 if (rightNow && !rightPrev && _presentInv.Count > 0) _invIndex = (_invIndex + 1) % _presentInv.Count;
 
                 if (InputManager.APressed && _presentInv.Count > 0) UseSelectedPresent();
@@ -435,6 +436,16 @@ namespace MonoGame
             return r;
         }
 
+        // Camera will follow the center of these bounds
+        public Vector2 CameraTarget
+        {
+            get
+            {
+                var r = GetPlayerBounds();
+                return new Vector2(r.Center.X, r.Center.Y);
+            }
+        }
+
         // === Inventory helpers ===
         private void AddPresentToInventory(int id, int amount)
         {
@@ -483,7 +494,7 @@ namespace MonoGame
                     _ranged.Equip(
                         ProjectileKind.Tomato,
                         uses: 5,
-                        prepA: 0.25f,   // was ~0.18
+                        prepA: 0.25f,
                         prepB: 0f,
                         speed: 260f,
                         range: 300f,
@@ -498,9 +509,15 @@ namespace MonoGame
                 {
                     _actions.SetMode(ActionModeKind.PressFire);
                     _toejam.SetSneak(false);
-                    // Two-stage prep (ready1, ready2) then release; faster & stronger tomato
-                    _ranged.Equip(ProjectileKind.Slingshot, uses: 10, prepA: 0.16f, prepB: 0.12f,
-                                  speed: 360f, range: 420f, damage: 2);
+                    _ranged.Equip(
+                        ProjectileKind.Slingshot,
+                        uses: 10,
+                        prepA: 0.16f,
+                        prepB: 0.12f,
+                        speed: 360f,
+                        range: 420f,
+                        damage: 2
+                    );
                     Globals.ShowToast("Slingshot: 10 shots (Z to fire)", 1.2f);
                     break;
                 }
@@ -569,16 +586,15 @@ namespace MonoGame
         {
             if (_white == null || _font == null) return;
 
-            // simple border + fill
             var border = Color.White;
-            var fill   = hovered ? new Color(70, 110, 200, 255) : new Color(40, 50, 90, 255);
+            var fill = hovered ? new Color(70, 110, 200, 255) : new Color(40, 50, 90, 255);
 
             Globals.SpriteBatch.Draw(_white, rect, border);
             var inner = new Rectangle(rect.X + 2, rect.Y + 2, rect.Width - 4, rect.Height - 4);
             Globals.SpriteBatch.Draw(_white, inner, fill);
 
             var size = _font.MeasureString(label);
-            var pos  = new Vector2(rect.Center.X - size.X / 2f,
+            var pos = new Vector2(rect.Center.X - size.X / 2f,
                                    rect.Center.Y - size.Y / 2f);
             Globals.SpriteBatch.DrawString(_font, label, pos, Color.White);
         }
@@ -594,40 +610,72 @@ namespace MonoGame
                 new Rectangle(0, 0, vp.Width, vp.Height),
                 new Color(20, 25, 45, 255));
 
-            string title = "ToeJam & Earl - Main Menu"; 
-            var size  = _font.MeasureString(title);
-            var pos   = new Vector2((vp.Width - size.X) / 2f, vp.Height * 0.22f);
+            string title = "ToeJam & Earl - Main Menu";
+            var size = _font.MeasureString(title);
+            var pos = new Vector2((vp.Width - size.X) / 2f, vp.Height * 0.22f);
             Globals.SpriteBatch.DrawString(_font, title, pos, Color.White);
 
             string hint = "Click Play to start or Quit to close (Enter also starts).";
             var hintSize = _font.MeasureString(hint);
-            var hintPos  = new Vector2((vp.Width - hintSize.X) / 2f, pos.Y + size.Y + 10f);
+            var hintPos = new Vector2((vp.Width - hintSize.X) / 2f, pos.Y + size.Y + 10f);
             Globals.SpriteBatch.DrawString(_font, hint, hintPos, Color.LightGray);
 
             DrawButton(_btnPlayRect, "Play Game", _hoverPlay);
             DrawButton(_btnQuitRect, "Quit", _hoverQuit);
         }
 
-        public void Draw()
+        // ==== DRAWING SPLIT: WORLD vs UI ====
+
+        // World space (uses camera transform)
+        public void DrawWorld()
         {
-            // MAIN MENU
+            if (_screen == GameScreen.MainMenu)
+                return;
+
+            // Tiles first
+            foreach (var o in _world) if (o.Role == GameRole.Tile) o.Draw();
+
+            // World objects (not UI)
+            foreach (var o in _world) if (o.Role != GameRole.Tile && o.Role != GameRole.UI) o.Draw();
+
+            // Projectiles
+            _ranged.Draw();
+
+            // Enemies + player
+            _lilDevil?.Draw();
+            _toejam.Draw();
+
+            // World debug overlays
+            if (_debugHUD)
+            {
+                var pb = GetPlayerBounds();
+                Globals.SpriteBatch.Draw(_white, pb, new Color(0, 255, 0, 80));
+
+                _tornado?.DrawDebug(Globals.SpriteBatch);
+                _lilDevil?.DrawDebugWake(Globals.SpriteBatch, _actions.IsSneaking);
+                _lilDevil?.DrawDebugVision(Globals.SpriteBatch);
+                _lilDevil?.DrawDebugCircle(Globals.SpriteBatch);
+            }
+        }
+
+        // Screen space (no camera transform)
+        public void DrawUI()
+        {
+            // Main menu is entirely UI
             if (_screen == GameScreen.MainMenu)
             {
                 DrawMainMenu();
                 return;
             }
 
-            // Tiles
-            foreach (var o in _world) if (o.Role == GameRole.Tile) o.Draw();
+            // HUD sprites (bottom bar etc.)
+            foreach (var o in _world) if (o.Role == GameRole.UI) o.Draw();
 
-            // World objects & enemies (not UI)
-            foreach (var o in _world) if (o.Role != GameRole.Tile && o.Role != GameRole.UI) o.Draw();
-
-            // Ammo HUD (shows whenever a ranged present is active)
+            // Ammo HUD (shows whenever ranged is active)
             if (_font != null && _ranged.Active)
             {
                 string ammo = $"{_ranged.Kind} Ammo: {_ranged.Ammo}/{_ranged.AmmoMax}";
-                var pos  = new Vector2(12, 50);
+                var pos = new Vector2(12, 50);
                 var size = _font.MeasureString(ammo);
                 var rect = new Rectangle(
                     (int)(pos.X - 8), (int)(pos.Y - 6),
@@ -636,18 +684,6 @@ namespace MonoGame
                 Globals.SpriteBatch.Draw(_white, rect, new Color(0, 0, 0, 140));
                 Globals.SpriteBatch.DrawString(_font, ammo, pos, Color.White);
             }
-
-            // Projectiles (from controller)
-            _ranged.Draw();
-
-            // Lil Devil
-            _lilDevil?.Draw();
-
-            // Player
-            _toejam.Draw();
-
-            // UI
-            foreach (var o in _world) if (o.Role == GameRole.UI) o.Draw();
 
             // Menu toast (top-center)
             if (_font != null && Globals.MenuToastTimer > 0f && !string.IsNullOrEmpty(Globals.MenuToastText))
@@ -706,7 +742,7 @@ namespace MonoGame
                 const string ptext = "PAUSED";
                 var vp = Globals.SpriteBatch.GraphicsDevice.Viewport;
                 var size = _font.MeasureString(ptext);
-                var pos  = new Vector2((vp.Width - size.X) / 2f, (vp.Height - size.Y) / 2f);
+                var pos = new Vector2((vp.Width - size.X) / 2f, (vp.Height - size.Y) / 2f);
 
                 var pad = new Vector2(12, 6);
                 var rect = new Rectangle(
@@ -719,7 +755,7 @@ namespace MonoGame
                 Globals.SpriteBatch.DrawString(_font, ptext, pos, Color.White);
             }
 
-            // Debug HUD
+            // Debug HUD TEXT (screen anchored)
             if (_debugHUD && _font != null)
             {
                 string itemLine = _nearestItem != null
@@ -740,15 +776,6 @@ namespace MonoGame
                                          (int)(size.X + 16), (int)(size.Y + 12));
                 Globals.SpriteBatch.Draw(_white, rect, new Color(0, 0, 0, 160));
                 Globals.SpriteBatch.DrawString(_font, dbg, pos, Color.White);
-
-                // Visual debugs
-                var pb = GetPlayerBounds();
-                Globals.SpriteBatch.Draw(_white, pb, new Color(0, 255, 0, 80));
-                _tornado?.DrawDebug(Globals.SpriteBatch);
-
-                _lilDevil?.DrawDebugWake(Globals.SpriteBatch, _actions.IsSneaking);
-                _lilDevil?.DrawDebugVision(Globals.SpriteBatch);
-                _lilDevil?.DrawDebugCircle(Globals.SpriteBatch);
             }
         }
     }

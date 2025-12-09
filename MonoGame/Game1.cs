@@ -9,6 +9,7 @@ public class Game1 : Game
     private readonly GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private GameManager _gameManager;
+    private CameraManager _camera;
 
     public Game1()
     {
@@ -36,6 +37,9 @@ public class Game1 : Game
         Globals.SpriteBatch = _spriteBatch;
 
         _gameManager.Init(GraphicsDevice);
+
+        // Camera after GraphicsDevice is ready
+        _camera = new CameraManager(GraphicsDevice);
     }
 
     protected override void Update(GameTime gameTime)
@@ -46,6 +50,12 @@ public class Game1 : Game
 
         Globals.Update(gameTime);
         _gameManager.Update();
+
+        // Let the camera follow ToeJam
+        if (_camera != null)
+        {
+            _camera.LookAt(_gameManager.CameraTarget);
+        }
 
         // Let the main menu Quit button close the game
         if (_gameManager.ShouldQuit)
@@ -58,10 +68,27 @@ public class Game1 : Game
     {
         GraphicsDevice.Clear(Color.Beige);
 
-        // PointClamp = crisp pixels, no bleeding/flicker
-        _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-        _gameManager.Draw();
-        _spriteBatch.End();
+        if (_gameManager.InMainMenu)
+        {
+            // Main menu: no camera, just screen-space UI
+            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            _gameManager.DrawUI();
+            _spriteBatch.End();
+        }
+        else
+        {
+            // World: with camera
+            _spriteBatch.Begin(
+                samplerState: SamplerState.PointClamp,
+                transformMatrix: _camera?.Transform ?? Matrix.Identity);
+            _gameManager.DrawWorld();
+            _spriteBatch.End();
+
+            // UI: no camera, locked to screen
+            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            _gameManager.DrawUI();
+            _spriteBatch.End();
+        }
 
         base.Draw(gameTime);
     }
