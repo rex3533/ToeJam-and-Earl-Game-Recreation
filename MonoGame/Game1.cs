@@ -47,6 +47,10 @@ public class Game1 : Game
         Globals.Update(gameTime);
         _gameManager.Update();
 
+        // Let the main menu Quit button close the game
+        if (_gameManager.ShouldQuit)
+            Exit();
+
         base.Update(gameTime);
     }
 

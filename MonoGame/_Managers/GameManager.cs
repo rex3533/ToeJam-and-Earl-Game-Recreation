@@ -7,6 +7,20 @@ namespace MonoGame
 {
     public class GameManager
     {
+        // ---- Screens ----
+        private enum GameScreen { MainMenu, Playing }
+        private GameScreen _screen = GameScreen.MainMenu;
+
+        // Main menu UI
+        private Rectangle _btnPlayRect;
+        private Rectangle _btnQuitRect;
+        private bool _menuLayoutReady = false;
+        private bool _hoverPlay = false;
+        private bool _hoverQuit = false;
+        private MouseState _prevMouse = Mouse.GetState();
+        private bool _shouldQuit = false;
+        public bool ShouldQuit => _shouldQuit;
+
         // --- Player + world ---
         private PlayerActions _actions;
         private ToeJam _toejam;
@@ -142,6 +156,24 @@ namespace MonoGame
             if (tomId > 0) AddPresentToInventory(tomId, 3);
             int slingId = FindPresentIdByName("Slingshot");
             if (slingId > 0) AddPresentToInventory(slingId, 1);
+
+            // Build main menu layout
+            SetupMainMenuLayout(gd.Viewport);
+        }
+
+        private void SetupMainMenuLayout(Viewport vp)
+        {
+            int btnWidth = 220;
+            int btnHeight = 60;
+            int spacing = 20;
+
+            int x = vp.Width / 2 - btnWidth / 2;
+            int y = vp.Height / 2 - btnHeight - spacing / 2;
+
+            _btnPlayRect = new Rectangle(x, y, btnWidth, btnHeight);
+            _btnQuitRect = new Rectangle(x, y + btnHeight + spacing, btnWidth, btnHeight);
+
+            _menuLayoutReady = true;
         }
 
         private static int FindPresentIdByName(string name)
@@ -165,6 +197,46 @@ namespace MonoGame
                         Tint = tint
                     });
                 }
+        }
+
+        private void UpdateMainMenu(KeyboardState kb, MouseState mouse)
+        {
+            if (!_menuLayoutReady && Globals.SpriteBatch != null)
+            {
+                var vp = Globals.SpriteBatch.GraphicsDevice.Viewport;
+                SetupMainMenuLayout(vp);
+            }
+
+            var mousePos = new Point(mouse.X, mouse.Y);
+
+            _hoverPlay = _btnPlayRect.Contains(mousePos);
+            _hoverQuit = _btnQuitRect.Contains(mousePos);
+
+            bool clicked = mouse.LeftButton == ButtonState.Pressed &&
+                           _prevMouse.LeftButton == ButtonState.Released;
+
+            if (clicked)
+            {
+                if (_hoverPlay) StartGame();
+                else if (_hoverQuit) _shouldQuit = true;
+            }
+
+            // Keyboard shortcuts
+            bool enterNow = kb.IsKeyDown(Keys.Enter) || kb.IsKeyDown(Keys.Space);
+            bool enterPrev = _prevKb.IsKeyDown(Keys.Enter) || _prevKb.IsKeyDown(Keys.Space);
+            if (enterNow && !enterPrev) StartGame();
+
+            bool escNow = kb.IsKeyDown(Keys.Escape);
+            bool escPrev = _prevKb.IsKeyDown(Keys.Escape);
+            if (escNow && !escPrev) _shouldQuit = true;
+        }
+
+        private void StartGame()
+        {
+            if (_screen == GameScreen.Playing) return;
+            _screen = GameScreen.Playing;
+            Globals.SetPaused(false);
+            Globals.ShowToast("Game Start! (Enter/Space = Pause)", 1.6f);
         }
 
         public void Update()
@@ -191,10 +263,24 @@ namespace MonoGame
             AudioManager.Update();
 
             var kb = Keyboard.GetState();
+            var mouse = Mouse.GetState();
+
+            // === MAIN MENU ===
+            if (_screen == GameScreen.MainMenu)
+            {
+                UpdateMainMenu(kb, mouse);
+                _prevKb = kb;
+                _prevMouse = mouse;
+                return;
+            }
 
             // Wakeup chain demo
             bool cNow = kb.IsKeyDown(Keys.C), cPrev = _prevKb.IsKeyDown(Keys.C);
-            if (cNow && !cPrev) { AudioManager.StartChainWakeup(); Globals.ShowToast("Chain: wakeup -> WAKEUP!", 0.8f); }
+            if (cNow && !cPrev)
+            {
+                AudioManager.StartChainWakeup();
+                Globals.ShowToast("Chain: wakeup -> WAKEUP!", 0.8f);
+            }
 
             // Track last non-zero facing
             if (InputManager.Moving) _playerFacing = Vector2.Normalize(InputManager.Direction);
@@ -260,10 +346,16 @@ namespace MonoGame
                 if (InputManager.APressed && _presentInv.Count > 0) UseSelectedPresent();
 
                 _prevKb = kb;
+                _prevMouse = mouse;
                 return;
             }
 
-            if (Globals.Paused) { _prevKb = kb; return; }
+            if (Globals.Paused)
+            {
+                _prevKb = kb;
+                _prevMouse = mouse;
+                return;
+            }
 
             // Enemy collision → hurt sound
             Rectangle playerBounds = GetPlayerBounds();
@@ -321,6 +413,7 @@ namespace MonoGame
                 if (!_world[i].Alive) _world.RemoveAt(i);
 
             _prevKb = kb;
+            _prevMouse = mouse;
         }
 
         // Center helper
@@ -472,8 +565,58 @@ namespace MonoGame
             _powerTimer = 0f;
         }
 
+        private void DrawButton(Rectangle rect, string label, bool hovered)
+        {
+            if (_white == null || _font == null) return;
+
+            // simple border + fill
+            var border = Color.White;
+            var fill   = hovered ? new Color(70, 110, 200, 255) : new Color(40, 50, 90, 255);
+
+            Globals.SpriteBatch.Draw(_white, rect, border);
+            var inner = new Rectangle(rect.X + 2, rect.Y + 2, rect.Width - 4, rect.Height - 4);
+            Globals.SpriteBatch.Draw(_white, inner, fill);
+
+            var size = _font.MeasureString(label);
+            var pos  = new Vector2(rect.Center.X - size.X / 2f,
+                                   rect.Center.Y - size.Y / 2f);
+            Globals.SpriteBatch.DrawString(_font, label, pos, Color.White);
+        }
+
+        private void DrawMainMenu()
+        {
+            if (_white == null || _font == null) return;
+
+            var vp = Globals.SpriteBatch.GraphicsDevice.Viewport;
+
+            // background panel
+            Globals.SpriteBatch.Draw(_white,
+                new Rectangle(0, 0, vp.Width, vp.Height),
+                new Color(20, 25, 45, 255));
+
+            string title = "ToeJam & Earl - Main Menu"; 
+            var size  = _font.MeasureString(title);
+            var pos   = new Vector2((vp.Width - size.X) / 2f, vp.Height * 0.22f);
+            Globals.SpriteBatch.DrawString(_font, title, pos, Color.White);
+
+            string hint = "Click Play to start or Quit to close (Enter also starts).";
+            var hintSize = _font.MeasureString(hint);
+            var hintPos  = new Vector2((vp.Width - hintSize.X) / 2f, pos.Y + size.Y + 10f);
+            Globals.SpriteBatch.DrawString(_font, hint, hintPos, Color.LightGray);
+
+            DrawButton(_btnPlayRect, "Play Game", _hoverPlay);
+            DrawButton(_btnQuitRect, "Quit", _hoverQuit);
+        }
+
         public void Draw()
         {
+            // MAIN MENU
+            if (_screen == GameScreen.MainMenu)
+            {
+                DrawMainMenu();
+                return;
+            }
+
             // Tiles
             foreach (var o in _world) if (o.Role == GameRole.Tile) o.Draw();
 
@@ -496,7 +639,6 @@ namespace MonoGame
 
             // Projectiles (from controller)
             _ranged.Draw();
-            
 
             // Lil Devil
             _lilDevil?.Draw();
@@ -507,7 +649,7 @@ namespace MonoGame
             // UI
             foreach (var o in _world) if (o.Role == GameRole.UI) o.Draw();
 
-            // Toast
+            // Menu toast (top-center)
             if (_font != null && Globals.MenuToastTimer > 0f && !string.IsNullOrEmpty(Globals.MenuToastText))
             {
                 var vp = Globals.SpriteBatch.GraphicsDevice.Viewport;

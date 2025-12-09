@@ -207,3 +207,12 @@ C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\ne
 C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\Lil_Devil.xnb
 C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\Smoosh.xnb
 C:\Users\maski\Game Design\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\TomatoLaunch.xnb
+C:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\BGMToeJam.ogg
+C:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\BGMToeJam.xnb
+C:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\Hurt_ToeJam.xnb
+C:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\Lil_Devil.xnb
+C:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\Smoosh.xnb
+C:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\Sparkles.xnb
+C:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\TomatoLaunch.xnb
+C:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\WakeUp.xnb
+C:\Users\maski\OneDrive\Documents\Game Programming\ToeJam-and-Earl-Game-Recreation\MonoGame\bin\Debug\net8.0\Content\WakeUp_Shout.xnb
